@@ -32,4 +32,10 @@ adk run <root_agent_name>
 adk web --port 8000  
 # copy the url into browser
 ```
-<img src="Images/google_adk.png" alt="Google ADK Architecture" width="400">
+<img src="Images/google_adk.png" alt="Google ADK web" width="400">
+
+### we can also run on command line 
+```
+adk run <root_agent_name>
+```
+<img src="Images/cmd_adk.png" alt="Google command prompt" width="400">
