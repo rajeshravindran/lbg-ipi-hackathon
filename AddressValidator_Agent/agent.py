@@ -1,7 +1,7 @@
 from google.adk.agents.llm_agent import Agent
 from dotenv import load_dotenv
-import requests
-from tools.AddressValidator import AddressAgent
+from .tools.AddressValidator import AddressAgent
+import os
 
 load_dotenv(override=True)
 
@@ -17,21 +17,19 @@ def search_address(address: str) -> dict:
     exists = any(k in address.lower() for k in keywords)
 
     result = addrAgent.validate(address)
-    return result.model_dump_json
+    return result.model_dump_json()
 
+
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+prompt_path = os.path.join(current_dir, "prompts.txt")
+with open(prompt_path, "r") as f:
+    agent_instructions = f.read()
 
 root_agent = Agent(
     model="gemini-2.5-flash",
     name="AddressValidator_Agent",
     description="Agent to validate the address provided",
-    instruction="""
-You validate postal addresses.
-
-Use the search tool to check whether the address exists.
-Respond clearly with either:
-- Address exists
-- Address not found
-- Also show me the complete output from the tool
-""",
-    tools=[search_address],  # ✅ callable = safe
+    instruction=agent_instructions,
+    tools=[search_address], 
 )

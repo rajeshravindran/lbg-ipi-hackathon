@@ -2,8 +2,8 @@ import sqlite3
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from postal.parser import parse_address
-from schemas import CustomerAddressProfile
-from createAddressDB import initialize_database
+from .schemas import CustomerAddressProfile
+from .createAddressDB import initialize_database
 from pathlib import Path
 import re
 
@@ -30,27 +30,24 @@ class AddressAgent:
         parsed = parse_address(user_input)
         addr = {label: value.upper() for value, label in parsed}
         
-        # IMPROVEMENT: Expanded labels to catch Hamlets/Villages like Bleasdale
+        # Capture what the user thinks the City/Borough is
+        user_area_context = addr.get('city') or addr.get('suburb') or addr.get('state_district')
+        
+        # Components for searching the road/feature name
         geo_labels = ['road', 'suburb', 'city', 'neighborhood', 'village', 'hamlet', 'state_district']
         search_components = [val.upper() for val, label in parsed if label in geo_labels]
         search_term = " ".join(search_components).strip()
 
-        # FALLBACK: If libpostal is confused by the short string, take the first part
+        # Fallbacks for short strings
         if not search_term and "," in user_input:
             search_term = user_input.split(',')[0].strip().upper()
         elif not search_term:
             search_term = user_input.split()[0].strip().upper()
 
-        # Postcode extraction
         postcode_parts = [value.upper() for value, label in parsed if label == 'postcode']
         postcode = " ".join(postcode_parts).strip()
         
-        # If libpostal didn't label the postcode, check if the last word looks like one
-        if not postcode and len(user_input.split()) > 1:
-            last_word = user_input.split()[-1].upper()
-            if re.match(r"^[A-Z]{1,2}[0-9][A-Z0-9]?$", last_word):
-                postcode = last_word
-
+        # Regex for District extraction (e.g. LA2)
         input_district = postcode.split()[0] if postcode else None
         
         conn = sqlite3.connect(self.db_path)
@@ -60,25 +57,24 @@ class AddressAgent:
         # 2. Strict Database Search
         db_match = None
         if search_term:
+            # We search based on NAME1. The new columns help us verify if the context is correct.
             if input_district:
-                # Match name AND district (Bleasdale in PR3)
-                query = "SELECT * FROM os_data WHERE NAME1 LIKE ? AND POSTCODE_DISTRICT = ? LIMIT 1"
-                cursor.execute(query, (f"{search_term}%", input_district))
+                query = "SELECT * FROM os_data WHERE upper(NAME1) LIKE ? AND upper(POSTCODE_DISTRICT) like ? LIMIT 1"
+                cursor.execute(query, (f"{search_term}%", f"{input_district}%"))
                 db_match = cursor.fetchone()
             
-            # Secondary fallback: If no match with district, try name only
             if not db_match:
-                query = "SELECT * FROM os_data WHERE NAME1 = ? LIMIT 1"
+                query = "SELECT * FROM os_data WHERE upper(NAME1) = ? LIMIT 1"
                 cursor.execute(query, (search_term,))
                 db_match = cursor.fetchone()
         
         conn.close()
 
-        # 3. UK Postcode Regex
+        # 3. UK Postcode Patterns
         full_pc_pattern = r"^[A-Z]{1,2}[0-9][A-Z0-9]? [0-9][A-Z]{2}$"
         dist_pc_pattern = r"^[A-Z]{1,2}[0-9][A-Z0-9]?$"
 
-        # 4. Heuristic Engine
+        # 4. Automated Heuristic Engine
         is_valid = db_match is not None
         risk_flags = []
         risk_score = 0
@@ -88,32 +84,53 @@ class AddressAgent:
         if is_valid:
             classification = "RESIDENTIAL" if db_match['LOCAL_TYPE'] in residential_types else "BUSINESS"
             
+            # --- AUTOMATED AREA CROSS-CHECK ---
+            # We check if the City/Borough in the DB matches the context provided by the user
+            db_city = (db_match['POPULATED_PLACE'] or "").upper()
+            db_borough = (db_match['DISTRICT_BOROUGH'] or "").upper()
+
+            if user_area_context:
+                # If user provided an area name that is neither the DB's city nor the DB's borough
+                valid_locations = [db_city, db_borough]
+
+                if not any(loc == user_area_context for loc in valid_locations if loc):
+                    risk_flags.append("GEOGRAPHIC_AREA_MISMATCH")
+                    risk_score += 40
+
+            # Postcode Validation
             if re.match(full_pc_pattern, postcode):
                 confidence_level = "HIGH"
             elif re.match(dist_pc_pattern, postcode) or (not postcode and db_match['POSTCODE_DISTRICT']):
                 risk_flags.append("PARTIAL_POSTCODE_DISTRICT")
-                risk_score = 10
+                risk_score += 10
                 confidence_level = "MEDIUM"
             else:
                 risk_flags.append("MISSING_OR_INVALID_POSTCODE")
-                risk_score = 30
+                risk_score += 30
+                confidence_level = "LOW"
         else:
             risk_flags.append("ADDRESS_NOT_IN_DATABASE")
             risk_score = 90
             classification = "UNKNOWN"
 
-        # 5. Construction
+        # 5. Construction of Final Profile
         house_no = addr.get('house_number', '').strip()
-        final_road = db_match['NAME1'] if is_valid else search_term
-        final_pc = postcode if postcode else (db_match['POSTCODE_DISTRICT'] if is_valid else "")
+        if is_valid:
+            final_road = db_match['NAME1'] if is_valid else search_term
+            final_pc = postcode if postcode else (db_match['POSTCODE_DISTRICT'] if is_valid else "")
+        else:
+            final_road = search_term if search_term else "UNKNOWN ROAD"
+            final_pc = postcode if postcode else "UNKNOWN POSTCODE"
         
-        main_addr = f"{house_no} {final_road}".strip()
-        std_addr = f"{main_addr}, {final_pc}".strip(", ")
+        full_std_addr = f"{house_no} {final_road}, {final_pc}".strip(", ").upper()
 
         return CustomerAddressProfile(
             is_valid=is_valid,
-            standardized_address=std_addr.upper(),
+            standardized_address=full_std_addrs,
             classification=classification,
+            populated_place=db_match['POPULATED_PLACE'] if is_valid else None,
+            district_borough=db_match['DISTRICT_BOROUGH'] if is_valid else None,
+            county=db_match['COUNTY_UNITARY'] if is_valid else None,
             risk_score=min(risk_score, 100),
             risk_flags=risk_flags,
             confidence_level=confidence_level,
@@ -132,10 +149,10 @@ if __name__ == "__main__":
     #test_address = "Melby Road, ZE2 9PL"
 
     test_addresses = [
-        "Upper Thurnham, LA2",   # Hamlet
-        "Gostagert Road, ZE2",        # Named Road
-        "Sandness, ZE2",         # Other Settlement
-        "Melby, ZE2 9PN",            # Village
+        "Upper Thurnham, LA2",  
+        "Woodend, WF10",        
+        "Darrington, WF8",         
+        "York Road , GU22",            
         "Dragon Breath Lane, ZZ9 9ZZ", #invalid
     ]
 

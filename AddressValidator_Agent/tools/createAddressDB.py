@@ -21,7 +21,16 @@ def initialize_database(header_path, data_folder_path, db_path='uk_validation.db
         df = pd.read_csv(file, names=column_names, header=None, low_memory=False)
         
         # ADD 'ID' HERE 
-        cols_to_keep = ['ID', 'NAME1', 'LOCAL_TYPE', 'POSTCODE_DISTRICT', 'COUNTRY']
+        cols_to_keep = [
+            'ID', 
+            'NAME1', 
+            'LOCAL_TYPE', 
+            'POSTCODE_DISTRICT', 
+            'POPULATED_PLACE', 
+            'DISTRICT_BOROUGH',
+            'COUNTY_UNITARY', 
+            'COUNTRY'
+        ]
         
         valid_types = ['Postcode', 'Named Road', 'Village', 'Hamlet']
         clean_df = df[df['LOCAL_TYPE'].isin(valid_types)][cols_to_keep]
