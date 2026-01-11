@@ -4,6 +4,7 @@ from postal.parser import parse_address
 import glob
 import os
 
+
 # 1. SETUP: Load Data and Build Search Index
 def initialize_database(header_path, data_folder_path, db_path='uk_validation.db'):
     header_df = pd.read_csv(header_path)
@@ -65,7 +66,7 @@ def validate_uk_input(user_input, db_path='uk_validation.db'):
 
 # --- EXECUTION ---
 
-if __name__ == 'main':
+if __name__ == '__main__':
 
     header_path="/Users/mia/myprojects/uv_projects/lbg-ipi-hackathon/AddressValidator_Agent/Data/Doc/OS_Open_Names_Header.csv"
     data_path="/Users/mia/myprojects/uv_projects/lbg-ipi-hackathon/AddressValidator_Agent/Data/csv"
