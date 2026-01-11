@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
+# Your exact schema
 class CustomerAddressProfile(BaseModel):
     is_valid: bool
     standardized_address: str

@@ -1,98 +1,74 @@
-import os
-from typing import override
-from google.maps import addressvalidation_v1
-from google.type import postal_address_pb2
+import sqlite3
+from pydantic import BaseModel, Field
+from typing import List, Optional
+from postal.parser import parse_address
 from schemas import CustomerAddressProfile
-from dotenv import load_dotenv
 
-from google.api_core.client_options import ClientOptions
+class AddressAgent:
+    def __init__(self, db_path='uk_validation.db'):
+        self.db_path = db_path
 
-load_dotenv(override=True)
-
-class AddressValidator:
-    def __init__(self):
-        # Set environment variable for the Google SDK
-        options = ClientOptions(api_key=os.getenv('GOOGLE_MAP_API'))
-        self.client = addressvalidation_v1.AddressValidationClient(client_options=options)
-
-    def validate(self, raw_address: str, region_code: str = "US") -> CustomerAddressProfile:
-        # Prepare the request
-        address = postal_address_pb2.PostalAddress(
-            address_lines=[raw_address],
-            region_code=region_code
-        )
-        request = addressvalidation_v1.ValidateAddressRequest(address=address)
+    def validate(self, user_input: str) -> CustomerAddressProfile:
+        # 1. Parse with libpostal
+        parsed = parse_address(user_input)
+        addr = {label: value.upper() for value, label in parsed}
         
-        # Call Google API
-        response = self.client.validate_address(request)
-        result = response.result
-        verdict = result.verdict
+        street = addr.get('road')
+        postcode = addr.get('postcode')
         
-        # 1. Standardization & Classification Logic
-        standardized = result.address.formatted_address
-        metadata = result.metadata
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row # Allows accessing columns by name
+        cursor = conn.cursor()
         
-        # Classification: Residential vs Business
-        business = metadata.business
-        residential = metadata.residential
-        address_type = "BUSINESS" if business else "RESIDENTIAL" if residential else "UNKNOWN"
+        # 2. Search Logic
+        # We search for the road specifically within that postcode district for accuracy
+        query = "SELECT * FROM os_data WHERE NAME1 LIKE ? LIMIT 1"
+        cursor.execute(query, (f"%{street}%",))
+        db_match = cursor.fetchone()
+        conn.close()
 
-        # 2. Risk Scoring Logic
+        # 3. Heuristic Engine (Risk & Classification)
+        is_valid = db_match is not None
+        risk_flags = []
         risk_score = 0
-        flags = []
-
-        if verdict.validation_granularity == "OTHER":
-            risk_score += 50
-            flags.append("LOW_PRECISION")
         
-        if not verdict.address_complete:
-            risk_score += 30
-            flags.append("INCOMPLETE_ADDRESS")
+        # Default classification
+        classification = "UNKNOWN"
+        
+        if is_valid:
+            # Classification Heuristic based on OS LOCAL_TYPE
+            # Named Roads are usually neutral, but "Other Settlement" or specific local types 
+            # can help us guess.
+            if db_match['LOCAL_TYPE'] in ['Postcode', 'Named Road']:
+                classification = "RESIDENTIAL" # Default assumption for open data
+            
+            # Risk Scoring Logic
+            if not postcode:
+                risk_flags.append("MISSING_POSTCODE")
+                risk_score += 30
+            
+            # Check for generic/empty road names
+            if street and len(street) < 3:
+                risk_flags.append("SHORT_ROAD_NAME")
+                risk_score += 20
+        else:
+            risk_flags.append("ADDRESS_NOT_IN_DATABASE")
+            risk_score = 90
+            classification = "UNKNOWN"
 
-        if metadata.po_box:
-            risk_score += 20
-            flags.append("PO_BOX")
+        # 4. Constructing the Standardized String
+        std_addr = f"{addr.get('house_number', '')} {street or ''}, {postcode or ''}".strip(", ")
 
-        # Return Pydantic object
         return CustomerAddressProfile(
-            is_valid=verdict.address_complete,
-            standardized_address=standardized,
-            classification=address_type,
+            is_valid=is_valid,
+            standardized_address=std_addr.upper(),
+            classification=classification,
             risk_score=min(risk_score, 100),
-            flags=flags,
-            granularity=str(verdict.validation_granularity).split('.')[-1],
-            plus_code=result.geocode.plus_code.global_code if result.geocode.plus_code else None
+            risk_flags=risk_flags,
+            confidence_level="HIGH" if is_valid and postcode else "LOW",
+            provider_metadata={
+                "os_id": db_match['ID'] if db_match else None,
+                "local_type": db_match['LOCAL_TYPE'] if db_match else None,
+                "country": db_match['COUNTRY'] if db_match else "UK"
+            }
         )
-
-        def calculate_risk_score(self, data, internal_blacklist):
-            score = 0
-        factors = []
-        
-        # 1. Check Validity
-        if not google_data.verdict.address_complete:
-            score += 40
-            factors.append("INCOMPLETE_ADDRESS")
-            
-        # 2. Check Type (Step 2 in your list)
-        if google_data.metadata.po_box:
-            score += 30
-            factors.append("PO_BOX_DETECTION")
-            
-        # 3. Internal Check (Step 3 in your list)
-        formatted = google_data.address.formatted_address
-        if formatted in internal_blacklist:
-            score = 100
-            factors.append("INTERNAL_HIGH_RISK_MATCH")
-            
-        return min(score, 100), factors
-
-
-if __name__=="main":
-    validator = AddressValidator()
-    # Test with a standard address
-    raw_input = "1600 Amphitheatre Pkwy, Mountain View, CA"
-    try:
-        report = validator.validate(raw_input)
-        print(report.model_dump_json(indent=2))
-    except Exception as e:
-        print(f"Error during validation: {e}")

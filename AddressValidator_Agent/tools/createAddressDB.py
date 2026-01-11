@@ -6,41 +6,29 @@ import os
 
 # 1. SETUP: Load Data and Build Search Index
 def initialize_database(header_path, data_folder_path, db_path='uk_validation.db'):
-    # 1. Load headers
     header_df = pd.read_csv(header_path)
     column_names = header_df.columns.tolist()
 
-    # 2. Open connection once
     conn = sqlite3.connect(db_path)
     conn.execute("DROP TABLE IF EXISTS os_data")
 
-    # 3. Get all files
     csv_files = glob.glob(os.path.join(data_folder_path, "*.csv"))
-    print(f"Found {len(csv_files)} files. Starting import...")
-
-    for i, file in enumerate(csv_files):
-        if "header" in file.lower():
-            continue
-            
-        # Log progress every 50 files so you know it hasn't frozen
-        if i % 50 == 0:
-            print(f"Processing file {i} of {len(csv_files)}...")
-
-        # Read and filter
+    
+    for file in csv_files:
+        if "header" in file.lower(): continue
+        
         df = pd.read_csv(file, names=column_names, header=None, low_memory=False)
         
+        # ADD 'ID' HERE 
+        cols_to_keep = ['ID', 'NAME1', 'LOCAL_TYPE', 'POSTCODE_DISTRICT', 'COUNTRY']
+        
         valid_types = ['Postcode', 'Named Road', 'Village', 'Hamlet']
-        clean_df = df[df['LOCAL_TYPE'].isin(valid_types)][['NAME1', 'LOCAL_TYPE', 'POSTCODE_DISTRICT', 'COUNTRY']]
+        clean_df = df[df['LOCAL_TYPE'].isin(valid_types)][cols_to_keep]
 
-        # Write to SQL (Keep connection open!)
         clean_df.to_sql('os_data', conn, if_exists='append', index=False)
 
-    # 4. NOW create indexes and close (OUTSIDE the loop)
-    print("All files processed. Creating indexes for performance...")
     conn.execute("CREATE INDEX idx_name ON os_data (NAME1)")
-    conn.execute("CREATE INDEX idx_type ON os_data (LOCAL_TYPE)")
-    
-    conn.close() # Close only once at the very end
+    conn.close()
     print(f"Success! Database {db_path} is ready.")
 
 # 2. VALIDATION LOGIC
@@ -79,12 +67,12 @@ def validate_uk_input(user_input, db_path='uk_validation.db'):
 
 if __name__ == 'main':
 
-    header_path="/Users/mia/myprojects/uv_projects/lbg-ipi-hackathon/AddressValidator_Agent/Data/Header/OS_Open_Names_Header.csv"
+    header_path="/Users/mia/myprojects/uv_projects/lbg-ipi-hackathon/AddressValidator_Agent/Data/Doc/OS_Open_Names_Header.csv"
     data_path="/Users/mia/myprojects/uv_projects/lbg-ipi-hackathon/AddressValidator_Agent/Data/csv"
+    db_path ="/Users/mia/myprojects/uv_projects/lbg-ipi-hackathon/AddressValidator_Agent/Data/uk_validation.db"
 
     # Initialize once
-    initialize_database(header_path, data_path)
-
+    initialize_database(header_path, data_path, db_path)
     # Test Validation
     test_address = "Melby Road, ZE2 9PL"
     report = validate_uk_input(test_address)
