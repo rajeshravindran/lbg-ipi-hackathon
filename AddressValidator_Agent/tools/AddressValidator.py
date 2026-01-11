@@ -2,20 +2,42 @@ import sqlite3
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from postal.parser import parse_address
-from .schemas import CustomerAddressProfile
-from .createAddressDB import initialize_database
 from pathlib import Path
 import re
+import sys
+
+try:
+    # This works when running through the Agent (adk run)
+    from .schemas import CustomerAddressProfile
+    from .createAddressDB import initialize_database
+except (ImportError, ValueError):
+    # This works when running 'python AddressValidator.py' directly
+    # We add the current directory to sys.path to find the siblings
+    current_dir = Path(__file__).resolve().parent
+    if str(current_dir) not in sys.path:
+        sys.path.append(str(current_dir))
+    
+    from schemas import CustomerAddressProfile
+    from createAddressDB import initialize_database
 
 class AddressAgent:
     def __init__(self, db_path='uk_validation.db'):
-        base_dir = Path(__file__).resolve().parent.parent
-        self.db_path = base_dir / db_path
+        script_dir = Path(__file__).resolve().parent
+        base_dir = script_dir.parent
+
+        db_filename = Path(db_path).name 
+        
+        # 2. Force it to be an absolute Path object inside the Data folder
+        self.db_path = base_dir / "Data" / db_filename
+
         self.header_path = base_dir / "Data/Doc/OS_Open_Names_Header.csv"
         self.data_path = base_dir / "Data/csv"
-        self.db_path = base_dir / db_path
+
+        # Ensure the directory for the DB exists before trying to open/create it
+        self.db_path.parent.mkdir(parents=True, exist_ok=True)
+       
         if not self.db_path.exists():
-            print("Database not found. Initializing (this may take a minute)...")
+            print(f"Database not found at {self.db_path}. Initializing...")
             initialize_database(
                 header_path=self.header_path, 
                 data_folder_path=self.data_path, 
@@ -126,7 +148,7 @@ class AddressAgent:
 
         return CustomerAddressProfile(
             is_valid=is_valid,
-            standardized_address=full_std_addrs,
+            standardized_address=full_std_addr,
             classification=classification,
             populated_place=db_match['POPULATED_PLACE'] if is_valid else None,
             district_borough=db_match['DISTRICT_BOROUGH'] if is_valid else None,
