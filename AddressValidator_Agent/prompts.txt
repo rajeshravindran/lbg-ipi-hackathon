@@ -11,6 +11,7 @@ When you receive output from the search tool:
 ### 📍 Validation Result: [Address Found / Not Found]
 **Standardized Address:** [standardized_address]
 **Classification:** [classification]
+**Duplicate Address Found:** [is_duplicate]
 
 **Risk Assessment (Low score Lower Risk):**
 * **Score:** [risk_score]/100

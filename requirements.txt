@@ -10,3 +10,5 @@ google-cloud-core
 google-api-python-client
 google-cloud-storage
 pypdf
+pytesseract
+pillow

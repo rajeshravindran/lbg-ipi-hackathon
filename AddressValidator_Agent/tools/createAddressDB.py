@@ -1,8 +1,13 @@
 import pandas as pd
 import sqlite3
 from postal.parser import parse_address
+from google.cloud import bigquery
 import glob
 import os
+from dotenv import load_dotenv
+
+load_dotenv(override=True)
+
 
 
 # 1. SETUP: Load Data and Build Search Index

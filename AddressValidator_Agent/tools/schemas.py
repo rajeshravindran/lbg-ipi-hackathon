@@ -6,6 +6,7 @@ class CustomerAddressProfile(BaseModel):
     is_valid: bool
     standardized_address: str
     classification: str = Field(description="RESIDENTIAL, BUSINESS, or UNKNOWN")
+    is_duplicate: bool
     
     populated_place: Optional[str] = Field(None, description="The Town or City associated with the address")
     district_borough: Optional[str] = Field(None, description="The Local Authority District or London Borough")
