@@ -78,11 +78,11 @@ def validate_and_unify(extraction_state: dict) -> dict:
     
     return combined_output
 
-agent_2 = LlmAgent(
+address_validator_dq = LlmAgent(
     name="AddressValidator_Agent",
     model="gemini-2.0-flash",
     instruction="""
-    You receive the 'extraction_state' from Agent 1.
+    You receive the 'extraction_state'.
     Call the 'validate_and_unify' tool to perform database validation and merge the results into the final schema.
     Return the final JSON object.
     """,

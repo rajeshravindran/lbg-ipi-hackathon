@@ -159,6 +159,62 @@ def validate_uk_input(user_input, db_path='uk_validation.db'):
     conn.close()
     return results
 
+def validate_uk_input_bq(user_input):
+    # 1. Setup BigQuery Client and Table Path
+    project_id = "dbs-data-ai-ai-core"
+    dataset_id = "lbg_ipi_digitalwallet"
+    table_id = f"{project_id}.{dataset_id}.os_data"
+    
+    client = bigquery.Client(project=project_id)
+    
+    # 2. Parse the messy user input
+    parsed = parse_address(user_input)
+    addr = {label: value.upper() for value, label in parsed}
+    
+    user_road = addr.get('road')
+    user_postcode = addr.get('postcode')
+    
+    results = {"valid_road": False, "valid_postcode": False, "matches": []}
+
+    # 3. Check Postcode
+    if user_postcode:
+        # Clustered search on NAME1 is very fast here
+        postcode_query = f"""
+            SELECT * FROM `{table_id}` 
+            WHERE NAME1 = @postcode AND LOCAL_TYPE = 'Postcode'
+            LIMIT 1
+        """
+        job_config = bigquery.QueryJobConfig(
+            query_parameters=[
+                bigquery.ScalarQueryParameter("postcode", "STRING", user_postcode)
+            ]
+        )
+        postcode_results = client.query(postcode_query, job_config=job_config).result()
+        if list(postcode_results):
+            results["valid_postcode"] = True
+
+    # 4. Check Road/Street
+    if user_road:
+        # Partial match using LIKE
+        road_query = f"""
+            SELECT * FROM `{table_id}` 
+            WHERE NAME1 LIKE @road AND LOCAL_TYPE = 'Named Road'
+            LIMIT 1
+        """
+        job_config = bigquery.QueryJobConfig(
+            query_parameters=[
+                bigquery.ScalarQueryParameter("road", "STRING", f"%{user_road}%")
+            ]
+        )
+        road_results = client.query(road_query, job_config=job_config).result()
+        
+        # Convert Row objects to dictionaries/lists for the response
+        for row in road_results:
+            results["valid_road"] = True
+            results["matches"].append(dict(row))
+
+    return results
+
 # --- EXECUTION ---
 
 if __name__ == '__main__':
@@ -172,7 +228,7 @@ if __name__ == '__main__':
     initialize_bigquery_from_local(header_path, data_path)
     # Test Validation
     test_address = "Melby Road, ZE2 9PL"
-    report = validate_uk_input(test_address)
+    report = validate_uk_input_bq(test_address)
 
     print(f"\nValidation Report for: {test_address}")
     print(f"Postcode Valid: {report['valid_postcode']}")
