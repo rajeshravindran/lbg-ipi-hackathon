@@ -9,7 +9,7 @@ import random
 
 try:
     # This works when running through the Agent (adk run)
-    from .schemas import CustomerAddressProfile, address_not_found_response
+    from .schemas import CustomerAddressDQ, address_not_found_response
     from .createAddressDB import initialize_database
 except (ImportError, ValueError):
     # This works when running 'python AddressValidator.py' directly
@@ -18,7 +18,7 @@ except (ImportError, ValueError):
     if str(current_dir) not in sys.path:
         sys.path.append(str(current_dir))
     
-    from schemas import CustomerAddressProfile, address_not_found_response
+    from schemas import CustomerAddressDQ, address_not_found_response
     from createAddressDB import initialize_database
 
 class AddressAgent:
@@ -53,7 +53,7 @@ class AddressAgent:
         _is_duplicate = random.random() < 0.20
         return _is_duplicate
 
-    def validate(self, user_input: str) -> CustomerAddressProfile:
+    def validate(self, user_input: str) -> CustomerAddressDQ:
         # 1. Parse with libpostal
         parsed = parse_address(user_input)
         addr = {label: value.upper() for value, label in parsed}
@@ -135,7 +135,7 @@ class AddressAgent:
             risk_flags.append('DUPLICATE ADDRESSES TRACKED')
             risk_score = min(risk_score + 30, 100)
 
-        return CustomerAddressProfile(
+        return CustomerAddressDQ(
             is_valid=is_valid,
             standardized_address=full_std_addr,
             classification=classification,

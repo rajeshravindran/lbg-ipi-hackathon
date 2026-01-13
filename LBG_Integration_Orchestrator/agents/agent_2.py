@@ -3,6 +3,33 @@ from google.adk.tools import FunctionTool
 from .tools.AddressValidator import AddressAgent
 from .tools.schemas import address_not_found_response
 import json
+from datetime import datetime
+from google.cloud import storage
+from dotenv import load_dotenv
+import os
+
+load_dotenv(override=True)
+
+def upload_to_gcs(data: dict, bucket_name: str):
+    """Helper function to upload JSON data to a GCP Bucket."""
+    try:
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(bucket_name)
+        
+        # Create a unique filename based on ID Number and Timestamp
+        id_num = data["DetailsFromID"].get("id_number", "unknown")
+        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+
+        blob_name = f"AddressValidator_DQ_Output/{id_num}_{timestamp}.json"
+        
+        blob = bucket.blob(blob_name)
+        blob.upload_from_string(
+            data=json.dumps(data, indent=2),
+            content_type='application/json'
+        )
+        print(f"Successfully uploaded results to gs://{bucket_name}/{blob_name}")
+    except Exception as e:
+        print(f"GCS Upload Failed: {e}")
 
 def verify_address_logic(address: str) -> dict:
     # If agent_1 already returned a 'not found' JSON, parse and return it
@@ -41,8 +68,13 @@ def validate_and_unify(extraction_state: dict) -> dict:
             "address": address_to_verify,
             "id_doc_name": data.get("id_doc_name", "Unknown")
         },
-        "CustomerAddressProfile": address_profile.model_dump()
+        "CustomerAddressDQ": address_profile.model_dump()
     }
+
+    # --- GCP BUCKET WRITE ---
+    # Set your bucket name here or via environment variable
+    BUCKET_NAME = 'lbg-ipi-digitalwallet'
+    upload_to_gcs(combined_output, BUCKET_NAME)
     
     return combined_output
 

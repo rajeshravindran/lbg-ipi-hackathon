@@ -8,7 +8,7 @@ class DetailsFromID(BaseModel):
     address: str | None = None
     id_doc_name: str
 
-class CustomerAddressProfile(BaseModel):
+class CustomerAddressDQ(BaseModel):
     is_valid: bool
     standardized_address: str
     classification: str = Field(description="RESIDENTIAL, BUSINESS, or UNKNOWN")
@@ -25,10 +25,10 @@ class CustomerAddressProfile(BaseModel):
 
 class FinalValidationResponse(BaseModel):
     DetailsFromID: DetailsFromID
-    CustomerAddressProfile: CustomerAddressProfile
+    CustomerAddressDQ: CustomerAddressDQ
 
-def address_not_found_response(raw_input: str=None, country: str = None) -> CustomerAddressProfile:
-    return CustomerAddressProfile(
+def address_not_found_response(raw_input: str=None, country: str = None) -> CustomerAddressDQ:
+    return CustomerAddressDQ(
         is_valid=False,
         standardized_address=f"{raw_input}, UNKNOWN",
         classification="UNKNOWN",
