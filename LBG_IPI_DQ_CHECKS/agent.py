@@ -17,10 +17,10 @@ root_agent = SequentialAgent(
     name="LBG_IPI_DQ_CHECKS",
     description="Multimodal ID extraction and address validation pipeline",
     sub_agents=[
-        id_extractor_agent, 
-        address_validator_dq, 
-        parse_document_agent, 
+        #id_extractor_agent, 
+        #address_validator_dq, 
+        #parse_document_agent, 
         data_contract_agent, 
-        document_pensions_agent
+        #document_pensions_agent
         ]
 )

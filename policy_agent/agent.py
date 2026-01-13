@@ -10,7 +10,7 @@ client = genai.Client(
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 from typing import Any, Dict, Optional, Union
-from google.adk.tools import ToolContext # Ensure this is imported
+from google.adk.tools import ToolContext 
 from google.adk.agents.llm_agent import Agent
 
 class PolicyDetails(BaseModel):
@@ -59,7 +59,7 @@ def parse_pdf_content(details: PolicyDetails, tool_context: ToolContext) -> dict
     # Return the already-separated dictionary (the model_validator moved the fields)
     return details.model_dump(exclude_none=True)
 
-def extract_policy_from_gcs(gcs_uri: str, tool_context: ToolContext) -> PolicyDetails:
+def extract_policy_from_gcs(gcs_uri: str='gs://lbg-ipi-digitalwallet/data_contract/Policy_001_Standard_Auto_Insurance.pdf', tool_context: ToolContext) -> PolicyDetails:
     """
     Reads a PDF from GCS and extracts structured policy data.
     Args:
