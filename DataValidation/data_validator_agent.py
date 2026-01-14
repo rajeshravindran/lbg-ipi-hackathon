@@ -1,7 +1,7 @@
 
 #!/usr/bin/env python3
 """
-ADK Data Validator Agent — Batch-first workflow with Gemini explanations (improved summary text)
+ADK Data Validator Agent — Batch-first workflow with Gemini explanations (chat display enabled)
 -----------------------------------------------------------------------------------------------
 Validates ALL wallet/customer JSON files under ./data/input against a JSON Schema,
 enforces null policy, and checks pipeline timestamps (monotonic order, SLO lags,
@@ -9,7 +9,8 @@ future skew, watermark). For each input, calls gemini-2.5-flash to generate:
   - Human-friendly English summary of the validation result (brief, plain English)
   - Structured remediation plan (JSON)
 
-Writes one uniform output JSON per input to ./data/output.
+Writes one uniform output JSON per input to ./data/output AND
+also posts each output JSON in the ADK chat.
 
 Folders (relative to THIS FILE):
   ./data/input/            # JSON inputs
@@ -250,19 +251,6 @@ def _build_output_doc(
     llm_summary_text: str,
     llm_structured: Dict[str, Any],
 ) -> Dict[str, Any]:
-    """
-    Uniform output JSON schema for ALL inputs:
-    {
-      "$schema": "adk.wallet.validation.output.v1",
-      "input_file": "...",
-      "record_hint": "...",
-      "ok": true/false,
-      "counts": { ... },
-      "issues": [ ... ],
-      "timestamp_metrics": { "availability": {...}, "lags_sec": {...} },
-      "llm": { "summary_text": "...", "structured": { ... } }
-    }
-    """
     return {
         "$schema": OUTPUT_DOC_SCHEMA_ID,
         "input_file": str(input_path),
@@ -302,77 +290,41 @@ Do NOT include code fences or additional commentary around the JSON.
 """
 
 def _extract_summary_and_json(text: str) -> Tuple[str, Optional[Dict[str, Any]]]:
-    """
-    Extract `SUMMARY:` paragraph and the first JSON object from the LLM response.
-    Returns (summary_text, structured_json_or_none).
-    """
-    # Extract SUMMARY: ... until a line that looks like JSON begins
-    summary_text = ""
-    json_obj: Optional[Dict[str, Any]] = None
-
-    # 1) Find JSON object (first balanced brace block)
     json_match = re.search(r"\{.*\}", text, flags=re.DOTALL)
     json_block = json_match.group(0) if json_match else None
-
-    # 2) Summary: everything before the JSON block, specifically starting after 'SUMMARY:'
-    if json_block:
-        before_json = text[:json_match.start()]
-    else:
-        before_json = text
-
-    # Try to locate "SUMMARY:" marker
+    before_json = text[:json_match.start()] if json_block else text
     m = re.search(r"SUMMARY:\s*(.*)", before_json, flags=re.DOTALL)
-    if m:
-        summary_text = m.group(1).strip()
-        # collapse excessive whitespace
-        summary_text = re.sub(r"\s+", " ", summary_text).strip()
-    else:
-        summary_text = before_json.strip()
-
-    # Parse JSON if present
+    summary_text = re.sub(r"\s+", " ", m.group(1).strip()) if m else before_json.strip()
+    structured = None
     if json_block:
         try:
-            json_obj = json.loads(json_block)
+            structured = json.loads(json_block)
         except Exception:
-            json_obj = None
-
-    return summary_text, json_obj
+            structured = None
+    return summary_text, structured
 
 def build_deterministic_summary_text(ok: bool, issues: List[Dict[str, Any]], counts: Dict[str, int]) -> str:
-    """
-    Fallback English summary if LLM output is not helpful.
-    """
     if ok:
-        return "The record passed all validations. No schema, null, or timestamp issues were found."
+        return "SUMMARY: The record passed all validations. No schema, null, or timestamp issues were found."
     if not issues:
-        return "The record did not pass validation, but no specific issues were enumerated. Re-run validation or check input parsing."
-    # Build concise reason list
-    cats = [i.get("category", "issue") for i in issues]
-    unique_cats = sorted(set(cats))
-    main = f"The record failed validation due to: {', '.join(unique_cats)}."
-    # Quick remediation hints
+        return "SUMMARY: The record did not pass validation, but no specific issues were enumerated. Re-run validation or check input parsing."
+    cats = sorted(set(i.get("category", "issue") for i in issues))
+    main = f"SUMMARY: The record failed validation due to: {', '.join(cats)}."
     hints = []
     if counts.get("schema_issues", 0) > 0:
         hints.append("ensure required fields exist, types match, and formats/enums are correct")
     if counts.get("null_issues", 0) > 0:
         hints.append("populate mandatory fields and remove null-equivalent values")
     if counts.get("timestamp_issues", 0) > 0:
-        hints.append("fix event/publish/validate/commit ordering and keep lags within SLO; avoid excessive lateness beyond the watermark")
+        hints.append("fix event/publish/validate/commit ordering, keep lags within SLO, and avoid lateness beyond the watermark")
     rem = (" Suggested remediation: " + "; ".join(hints) + ".") if hints else ""
     return (main + rem).strip()
 
 def invoke_gemini_explanation(validation_summary: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
-    """
-    Calls gemini-2.5-flash to get (summary_text, structured_json).
-    Enforces plain-English summary and structured JSON. Falls back to deterministic
-    summary if the LLM output isn't usable.
-    """
     user_payload = "Validation summary:\n" + json.dumps(validation_summary, indent=2)
     prompt = _EXPLANATION_SYSTEM_PROMPT + "\n\n" + user_payload
-
     llm_text = ""
     try:
-        # Try common ADK Gemini invocation methods
         if hasattr(_gemini_model, "generate"):
             resp = _gemini_model.generate(prompt=prompt)
             llm_text = getattr(resp, "text", None) or (resp if isinstance(resp, str) else json.dumps(resp, ensure_ascii=False))
@@ -390,7 +342,6 @@ def invoke_gemini_explanation(validation_summary: Dict[str, Any]) -> Tuple[str, 
 
     summary_text, structured = _extract_summary_and_json(llm_text)
 
-    # If either part is missing or summary looks like raw dict, fallback to deterministic
     ok = bool(validation_summary.get("ok"))
     counts = validation_summary.get("summary", {}).get("counts", {}) or validation_summary.get("counts", {}) or {}
     issues = validation_summary.get("issues", [])
@@ -407,11 +358,11 @@ def invoke_gemini_explanation(validation_summary: Dict[str, Any]) -> Tuple[str, 
     return summary_text, structured
 
 # =========================
-# Batch Validation Agent (runs automatically)
+# Batch Validation Agent (runs automatically and posts to chat)
 # =========================
 class BatchValidationAgent(BaseAgent):
     name: str = "batch_validation_runner"
-    description: str = "Iterates all JSONs in data/input, validates, explains via Gemini, and writes uniform outputs to data/output."
+    description: str = "Iterates all JSONs in data/input, validates, explains via Gemini, writes uniform outputs to data/output, and posts each output to chat."
 
     async def _run_async_impl(self, ctx: InvocationContext) -> AsyncGenerator[Event, None]:
         state = ctx.session.state
@@ -532,7 +483,6 @@ class BatchValidationAgent(BaseAgent):
                 ok = len(issues) == 0
                 record_hint = record.get("wallet_id") or record.get("customer_id") or "<unknown>"
 
-                # Build validation_summary for the LLM
                 validation_summary = {
                     "counts": counts,
                     "timestamp_metrics": ts_metrics,
@@ -567,7 +517,17 @@ class BatchValidationAgent(BaseAgent):
             except Exception as write_exc:
                 per_file_status.append({"file": str(input_path), "output": str(out_path), "ok": False, "error": f"Failed to write output: {write_exc}"})
 
-        # Emit final batch summary into state
+            # === NEW: Also show the per-file output in ADK chat ===
+            pretty = json.dumps(out_doc, indent=2, ensure_ascii=False)
+            chat_text = (
+                f"**Validation Output for:** `{input_path.name}`\n"
+                f"**Written to:** `{out_path}`\n\n"
+                f"{pretty}"
+            )
+            # Emit a chat-visible event
+            yield Event(author=self.name, actions=EventActions(text=chat_text))
+
+        # Emit final batch summary into state (and show in chat)
         batch_summary = {
             "ok": True,
             "processed": total_processed,
@@ -576,6 +536,14 @@ class BatchValidationAgent(BaseAgent):
             "output_dir": str(OUTPUT_DIR),
         }
         yield Event(author=self.name, actions=EventActions(state_delta={"batch_summary": batch_summary}))
+        # Optional: show a concise summary message in chat
+        summary_text = (
+            f"**Batch Completed**\n"
+            f"Processed: {total_processed} file(s)\n"
+            f"Output folder: `{OUTPUT_DIR}`\n"
+            f"Aggregate counts: {json.dumps(aggregate_counts)}\n"
+        )
+        yield Event(author=self.name, actions=EventActions(text=summary_text))
         return
 
 # =========================
@@ -583,7 +551,7 @@ class BatchValidationAgent(BaseAgent):
 # =========================
 root_agent = SequentialAgent(
     name="wallet_contract_batch_validation_workflow",
-    description="Batch validate all inputs, explain with Gemini, and write uniform outputs (prompt-independent).",
+    description="Batch validate all inputs, explain with Gemini, write outputs, and post each output to chat (prompt-independent).",
     sub_agents=[
         BatchValidationAgent(),  # runs automatically on web invocation
     ],
