@@ -633,7 +633,7 @@ class BatchValidationAgent(BaseAgent):
 # =========================
 root_agent = SequentialAgent(
     name="wallet_contract_batch_validation_workflow",
-    description="Batch validate all inputs, explain with Gemini, write outputs, and post Markdown summaries to chat (prompt-independent).",
+    description="Batch validate all inputs, explain with Gemini, write outputs, and post each output to chat in an Markdown.",
     sub_agents=[BatchValidationAgent()],
 )
 

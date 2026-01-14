@@ -2,7 +2,6 @@
 from google import genai
 
 client = genai.Client(
-    vertexai=True,
     project="dbs-data-ai-ai-core", # or os.environ.get("GOOGLE_CLOUD_PROJECT")
     location="us-central1"        # or os.environ.get("GOOGLE_CLOUD_LOCATION")
 )
