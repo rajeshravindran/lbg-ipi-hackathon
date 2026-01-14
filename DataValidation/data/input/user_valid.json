@@ -1,0 +1,27 @@
+
+{
+  "wallet_id": "AB12CD34EF",
+  "customer_id": "CUST123456",
+  "kyc_status": "verified",
+  "source_event_time": "2026-01-10T06:40:00Z",
+  "pubsub_publish_time": "2026-01-10T06:41:10Z",
+  "validator_start_time": "2026-01-10T06:41:12Z",
+  "commit_time": "2026-01-10T06:41:35Z",
+  "address": {
+    "line1": "10 Downing Street",
+    "line2": null,
+    "city": "London",
+    "postal_code": "SW1A 2AA",
+    "country_code": "GB",
+    "residential_type": "organization"
+  },
+  "policies": [
+    {
+      "policy_number": "PN-001",
+      "status": "active",
+      "premium_amount": 123.45,
+      "start_date": "2025-01-01",
+      "end_date": "2025-12-31"
+    }
+  ]
+}

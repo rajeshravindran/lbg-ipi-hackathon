@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "wallet_curated.wallet.v2",
+  "title": "Wallet",
+  "type": "object",
+
+  "required": [
+    "wallet_id",
+    "customer_id",
+    "kyc_status",
+    "address",
+    "source_event_time",
+    "pubsub_publish_time",
+    "validator_start_time",
+    "commit_time"
+  ],
+
+  "properties": {
+    "wallet_id": { "type": "string", "pattern": "^[A-Z0-9]{10}$" },
+    "customer_id": { "type": "string", "minLength": 6 },
+    "kyc_status": { "type": "string", "enum": ["unverified", "pending_correction", "verified", "rejected"] },
+
+    "source_event_time":    { "type": "string", "format": "date-time" },
+    "pubsub_publish_time":  { "type": "string", "format": "date-time" },
+    "validator_start_time": { "type": "string", "format": "date-time" },
+    "commit_time":          { "type": "string", "format": "date-time" },
+
+    "address": {
+      "type": "object",
+      "required": ["line1", "city", "postal_code", "country_code"],
+      "properties": {
+        "line1": { "type": "string", "minLength": 3 },
+        "line2": { "type": ["string", "null"] },
+        "city": { "type": "string" },
+        "postal_code": { "type": "string" },
+        "country_code": { "type": "string", "pattern": "^[A-Z]{2}$" },
+        "residential_type": { "type": "string", "enum": ["residential", "organization", "unknown"] }
+      },
+      "additionalProperties": false
+    },
+
+    "policies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["policy_number", "status"],
+        "properties": {
+          "policy_number": { "type": "string" },
+          "status": { "type": "string", "enum": ["active", "lapsed", "cancelled", "pending"] },
+          "premium_amount": { "type": ["number", "null"], "minimum": 0 },
+          "start_date": { "type": ["string", "null"], "format": "date" },
+          "end_date": { "type": ["string", "null"], "format": "date" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+
+  "additionalProperties": false
+}
