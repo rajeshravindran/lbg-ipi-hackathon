@@ -1,16 +1,15 @@
 # In your agent.py code
 from google import genai
-from google.genai import types
 
 client = genai.Client(
     vertexai=True,
-    project="project-244-295208", # or os.environ.get("GOOGLE_CLOUD_PROJECT")
+    project="dbs-data-ai-ai-core", # or os.environ.get("GOOGLE_CLOUD_PROJECT")
     location="us-central1"        # or os.environ.get("GOOGLE_CLOUD_LOCATION")
 )
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 from typing import Any, Dict, Optional, Union
-from google.adk.tools import ToolContext 
+from google.adk.tools import ToolContext # Ensure this is imported
 from google.adk.agents.llm_agent import Agent
 
 class PolicyDetails(BaseModel):
@@ -59,39 +58,17 @@ def parse_pdf_content(details: PolicyDetails, tool_context: ToolContext) -> dict
     # Return the already-separated dictionary (the model_validator moved the fields)
     return details.model_dump(exclude_none=True)
 
-def extract_policy_from_gcs(gcs_uri: str='gs://lbg-ipi-digitalwallet/data_contract/Policy_001_Standard_Auto_Insurance.pdf', tool_context: ToolContext) -> PolicyDetails:
-    """
-    Reads a PDF from GCS and extracts structured policy data.
-    Args:
-        gcs_uri: The Cloud Storage path (e.g., 'gs://your-bucket/policy.pdf')
-    """
-    # 1. Define the PDF part from the URI
-    pdf_file = types.Part.from_uri(
-        file_uri=gcs_uri,
-        mime_type="application/pdf"
-    )
-
-    # 2. Call the model using the pre-initialized 'client'
-    # The SDK will use the model assigned to the agent
-    response = client.models.generate_content(
-        model="gemini-2.0-flash", 
-        contents=[pdf_file, "Extract policy details from this document."],
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            response_schema=PolicyDetails # Enforce your Pydantic schema
-        )
-    )
-
-    # 3. Use the skip_summarization flag for raw tool output
-    tool_context.actions.skip_summarization = True
-    
-    # Return the validated object; ADK will handle the 'PolicyDetails' formatting
-    return response.parsed 
-
 root_agent = Agent(
     name="policy_parser_agent",
     model="gemini-2.0-flash", 
+    # 2. CRITICAL: Enforce the schema on the final response so the separator runs
     output_schema=PolicyDetails, 
-    instruction="Extract data from GCS-stored PDFs. Use the provided tool to access files.",
-    tools=[extract_policy_from_gcs], # Added the GCS tool
+    instruction="""
+        You are a data extraction engine. 
+        - Extract all fields from the PDF.
+        - If a field is missing, blank, or 'N/A', you MUST set its value to 'NOT PROVIDED'.
+        - Extra fields (Address, Deductible) MUST go into 'other_attributes'.
+        - DO NOT summarize. Output the raw data structured by your tools.
+    """,
+    tools=[parse_pdf_content],
 )

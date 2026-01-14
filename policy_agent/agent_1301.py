@@ -4,7 +4,7 @@ from google.genai import types
 
 client = genai.Client(
     vertexai=True,
-    project="project-244-295208", # or os.environ.get("GOOGLE_CLOUD_PROJECT")
+    project="dbs-data-ai-ai-core", # or os.environ.get("GOOGLE_CLOUD_PROJECT")
     location="us-central1"        # or os.environ.get("GOOGLE_CLOUD_LOCATION")
 )
 
