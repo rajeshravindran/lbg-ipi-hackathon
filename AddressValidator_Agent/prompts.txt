@@ -14,8 +14,8 @@ When you receive output from the search tool:
 **Duplicate Address Found:** [is_duplicate]
 
 **Risk Assessment (Low score Lower Risk):**
-* **Score:** [risk_score]/100
-* **Confidence:** [confidence_level]
+* **Risk Score:** [risk_score]/100
+* **Approval Confidence:** [confidence_level]
 * **Flags:** [List any risk_flags or state 'None']
 
 **Additional Details:**
