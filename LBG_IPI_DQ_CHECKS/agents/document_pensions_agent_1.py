@@ -2,12 +2,14 @@ from typing import override
 from google.adk.agents import Agent, SequentialAgent
 from dotenv import load_dotenv
 import datetime
+import os
 from zoneinfo import ZoneInfo
 from google.adk.tools import FunctionTool
 
 import requests
 import json
-
+from dotenv import load_dotenv
+load_dotenv(override=True)
 
 AGENT_MODEL = "gemini-2.5-flash"
 
@@ -21,7 +23,7 @@ def verify_employee_employer(employee_name: str, employer_name: str) -> str:
     import json
 
     # Use your Serper or Google API Key
-    api_key = "AIzaSyBDABDIrUBUikRx4oTj7E8IxRy2PQsTsOM"
+    api_key = os.environ.get("GOOGLE_API_KEY")
     url = "https://google.serper.dev/search"
     
     # The 'in' path targets individual profiles
@@ -50,7 +52,7 @@ dormant_account_agent = Agent(
     description="An agent that searches the internal DB to find out records that are not updated more than 6 months",
     instruction="""
     You are a Financial Agent. You will be given a a source dataset Members_Accounts_E.csv. You will identify dormant accounts:
-    - Account that is not updated over 6 months based on last_contribution_date column in the file.
+    - Account that is not updated over 6 months based on last_contribution_date
     """,
     #output_key="dormant_accounts",
 )
@@ -63,12 +65,11 @@ dormant_remediation_agent = Agent(
     You are a remdiation agent. if the employee name and employer name are matching in the linked in search using the tool provided:
     - Search the employee and employer name for the record
     - If they are not matching,save the record in a remediation_accounts.csv
-
     """,
     tools=[linkedin_tool]
 )
 
-root_agent = SequentialAgent(
+document_pensions_agent = SequentialAgent(
     name="DormantPensionsAccount",
     # model=LiteLlm(AGENT_MODEL),#not needed for SequentialAgent
     # model=AGENT_MODEL, #not needed for SequentialAgent
@@ -79,4 +80,12 @@ root_agent = SequentialAgent(
     ],
   
 )
-
+"""
+document_pensions_agent=LlmAgent(
+    name='document_pension_agent',
+    description="document_pension_agent",
+    instruction=
+    you will respond back with message hello from document_pension_agent
+    
+)
+"""

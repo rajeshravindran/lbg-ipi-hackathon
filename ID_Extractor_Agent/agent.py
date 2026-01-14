@@ -45,7 +45,7 @@ async def load_image(path: str, tool_context: ToolContext) -> str:
         return f"Error: {str(e)}"
 
 root_agent = Agent(
-    name='id_data_extractor_agent',
+    name='ID_Extractor_Agent',
     model='gemini-2.0-flash',
     description="Extracts information from ID proofs.",
     instruction="""
