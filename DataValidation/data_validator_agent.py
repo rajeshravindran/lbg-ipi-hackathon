@@ -4,18 +4,12 @@
 ADK Data Validator Agent — Batch-first workflow with Gemini explanations (chat display enabled)
 -----------------------------------------------------------------------------------------------
 Validates ALL wallet/customer JSON files under ./data/input against a JSON Schema,
-enforces null policy, and checks pipeline timestamps (monotonic order, SLO lags,
-future skew, watermark). For each input, calls gemini-2.5-flash to generate:
-  - Human-friendly English summary of the validation result (brief, plain English)
+enforces null policy, and checks pipeline timestamps. For each input, calls gemini-2.5-flash to generate:
+  - Human-friendly English summary
   - Structured remediation plan (JSON)
 
 Writes one uniform output JSON per input to ./data/output AND
-also posts each output JSON in the ADK chat.
-
-Folders (relative to THIS FILE):
-  ./data/input/            # JSON inputs
-  ./data/output/           # JSON outputs (one per input)
-  ./schemas/wallet_v2.json # JSON Schema (Draft 2020-12)
+also posts each output JSON in the ADK web chat.
 
 Requires: google-adk, jsonschema
 """
@@ -38,10 +32,11 @@ from google.adk.agents.base_agent import BaseAgent
 from google.adk.agents.sequential_agent import SequentialAgent
 from google.adk.agents.invocation_context import InvocationContext
 from google.adk.events.event import Event
-from google.adk.events.event_actions import EventActions  # instantiate with kwargs
+from google.adk.events.event_actions import EventActions  # state updates / control signals
 
-# Gemini LLM
+# --- LLM + Content types ---
 from google.adk.models.google_llm import Gemini
+from google.genai import types  # <-- IMPORTANT: for Content & Part (chat-visible text)
 
 # =========================
 # Project paths
@@ -72,7 +67,7 @@ DEFAULT_TOLERANCES: Dict[str, float] = {
 NULL_EQUIVALENTS = {"", " ", "N/A", "UNKNOWN", None}
 
 # =========================
-# Helpers
+# Helpers (unchanged)
 # =========================
 def load_json_local(path: Path) -> Dict[str, Any]:
     with open(path, "r", encoding="utf-8") as f:
@@ -237,7 +232,7 @@ def check_pipeline_timestamps(
     return issues, metrics
 
 # =========================
-# Uniform output doc builder
+# Output doc schema (unchanged)
 # =========================
 OUTPUT_DOC_SCHEMA_ID = "adk.wallet.validation.output.v1"
 
@@ -266,27 +261,24 @@ def _build_output_doc(
     }
 
 # =========================
-# Gemini (gemini-2.5-flash) explanation helper
+# Gemini helper (unchanged logic)
 # =========================
-_gemini_model = Gemini(
-    model="gemini-2.5-flash",
-    use_interactions_api=True,
-)
+_gemini_model = Gemini(model="gemini-2.5-flash", use_interactions_api=True)
 
 _EXPLANATION_SYSTEM_PROMPT = """You are a data quality validator/explainer for wallet/customer records.
 
 Return your answer in TWO parts:
-1) A brief plain-English paragraph beginning with the literal header:
+1) A brief plain-English paragraph beginning with:
    SUMMARY:
    Keep it under 4 sentences, explain what passed/failed and the main reason(s).
-   Mention practical remediation actions (e.g., fix timestamps, correct formats, fill required fields).
+   Mention practical remediation actions.
 2) A single JSON object with EXACT keys:
    {
      "explanations": [{"field_path":"...", "category":"...", "severity":"...", "why":"...", "how_to_fix":"..."}],
      "remediation_plan": [{"priority":"high|medium|low", "step":"...", "example":"..."}],
      "compliance_status": {"ok": true|false, "summary": "one-sentence status"}
    }
-Do NOT include code fences or additional commentary around the JSON.
+Do NOT include code fences or commentary around the JSON.
 """
 
 def _extract_summary_and_json(text: str) -> Tuple[str, Optional[Dict[str, Any]]]:
@@ -358,26 +350,31 @@ def invoke_gemini_explanation(validation_summary: Dict[str, Any]) -> Tuple[str, 
     return summary_text, structured
 
 # =========================
-# Batch Validation Agent (runs automatically and posts to chat)
+# Batch Validation Agent (NOW posts to chat via Event.content.parts)
 # =========================
 class BatchValidationAgent(BaseAgent):
     name: str = "batch_validation_runner"
-    description: str = "Iterates all JSONs in data/input, validates, explains via Gemini, writes uniform outputs to data/output, and posts each output to chat."
+    description: str = "Validates all JSONs, explains via Gemini, writes outputs, and posts each output to chat."
 
     async def _run_async_impl(self, ctx: InvocationContext) -> AsyncGenerator[Event, None]:
         state = ctx.session.state
 
-        # Ensure paths
+        # Path checks
         if not SCHEMA_PATH.is_file():
+            msg = f"Schema file not found: {SCHEMA_PATH}"
+            # Show error in chat
             yield Event(
                 author=self.name,
-                actions=EventActions(state_delta={"batch_summary": {"ok": False, "detail": f"Schema file not found: {SCHEMA_PATH}"}})
+                content=types.Content(parts=[types.Part(text=msg)]),
+                actions=EventActions(state_delta={"batch_summary": {"ok": False, "detail": msg}}, skip_summarization=True),
             )
             return
         if not INPUT_DIR.is_dir():
+            msg = f"Input directory not found: {INPUT_DIR}"
             yield Event(
                 author=self.name,
-                actions=EventActions(state_delta={"batch_summary": {"ok": False, "detail": f"Input directory not found: {INPUT_DIR}"}})
+                content=types.Content(parts=[types.Part(text=msg)]),
+                actions=EventActions(state_delta={"batch_summary": {"ok": False, "detail": msg}}, skip_summarization=True),
             )
             return
 
@@ -387,22 +384,26 @@ class BatchValidationAgent(BaseAgent):
         try:
             schema = load_json_local(SCHEMA_PATH)
         except Exception as e:
+            msg = f"Failed to load schema: {e}"
             yield Event(
                 author=self.name,
-                actions=EventActions(state_delta={"batch_summary": {"ok": False, "detail": f"Failed to load schema: {e}"}})
+                content=types.Content(parts=[types.Part(text=msg)]),
+                actions=EventActions(state_delta={"batch_summary": {"ok": False, "detail": msg}}, skip_summarization=True),
             )
             return
 
-        # Enumerate candidate inputs
+        # Discover inputs
         candidates: List[Path] = [p for p in INPUT_DIR.iterdir() if p.is_file() and looks_like_json_file(p)]
         if not candidates:
+            msg = f"No JSON files found in input: {INPUT_DIR}"
             yield Event(
                 author=self.name,
-                actions=EventActions(state_delta={"batch_summary": {"ok": True, "processed": 0, "files": [], "detail": "No JSON files found in input."}})
+                content=types.Content(parts=[types.Part(text=msg)]),
+                actions=EventActions(state_delta={"batch_summary": {"ok": True, "processed": 0, "files": [], "detail": "No JSON files found in input."}}, skip_summarization=True),
             )
             return
 
-        # Allow overrides from state (optional)
+        # Overrides
         critical_paths: List[str] = state.get("critical_paths") or DEFAULT_CRITICAL_PATHS
         tolerances: Dict[str, float] = state.get("tolerances") or DEFAULT_TOLERANCES
 
@@ -413,13 +414,12 @@ class BatchValidationAgent(BaseAgent):
         for input_path in sorted(candidates):
             total_processed += 1
 
-            # Safe load record
+            # Safe load
             try:
                 record = load_json_local(input_path)
                 if not isinstance(record, dict):
                     raise ValueError("Top-level JSON must be an object.")
             except Exception as exc:
-                # Unreadable record -> emit uniform doc with parse error
                 issues = [{
                     "category": "input_parse_error",
                     "field_path": "",
@@ -427,12 +427,7 @@ class BatchValidationAgent(BaseAgent):
                     "validator": "json",
                     "severity": "high",
                 }]
-                counts = {
-                    "schema_issues": 0,
-                    "null_issues": 0,
-                    "timestamp_issues": 0,
-                    "total": len(issues),
-                }
+                counts = {"schema_issues": 0, "null_issues": 0, "timestamp_issues": 0, "total": len(issues)}
                 ok = False
                 record_hint = "<unreadable>"
                 ts_metrics: Dict[str, Any] = {}
@@ -443,9 +438,7 @@ class BatchValidationAgent(BaseAgent):
                     "record_hint": record_hint,
                     "selected_file": str(input_path),
                 }
-                llm_summary_text, llm_structured = invoke_gemini_explanation(
-                    {"ok": ok, "issues": issues, "summary": validation_summary}
-                )
+                llm_summary_text, llm_structured = invoke_gemini_explanation({"ok": ok, "issues": issues, "summary": validation_summary})
 
                 out_doc = _build_output_doc(
                     input_path=input_path,
@@ -489,9 +482,7 @@ class BatchValidationAgent(BaseAgent):
                     "record_hint": record_hint,
                     "selected_file": str(input_path),
                 }
-                llm_summary_text, llm_structured = invoke_gemini_explanation(
-                    {"ok": ok, "issues": issues, "summary": validation_summary}
-                )
+                llm_summary_text, llm_structured = invoke_gemini_explanation({"ok": ok, "issues": issues, "summary": validation_summary})
 
                 out_doc = _build_output_doc(
                     input_path=input_path,
@@ -504,7 +495,7 @@ class BatchValidationAgent(BaseAgent):
                     llm_structured=llm_structured,
                 )
 
-                # Update aggregates
+                # Aggregates
                 for k in aggregate_counts.keys():
                     aggregate_counts[k] += counts.get(k, 0)
 
@@ -517,17 +508,16 @@ class BatchValidationAgent(BaseAgent):
             except Exception as write_exc:
                 per_file_status.append({"file": str(input_path), "output": str(out_path), "ok": False, "error": f"Failed to write output: {write_exc}"})
 
-            # === NEW: Also show the per-file output in ADK chat ===
+            # === SHOW per-file output in ADK chat (use Content.parts[Text]) ===
             pretty = json.dumps(out_doc, indent=2, ensure_ascii=False)
-            chat_text = (
-                f"**Validation Output for:** `{input_path.name}`\n"
-                f"**Written to:** `{out_path}`\n\n"
-                f"{pretty}"
+            chat_text = f"Validation Output for `{input_path.name}` → `{out_path}`\n\n{pretty}"
+            yield Event(
+                author=self.name,
+                content=types.Content(parts=[types.Part(text=chat_text)]),
+                actions=EventActions(skip_summarization=True),  # prevent UI summarization
             )
-            # Emit a chat-visible event
-            yield Event(author=self.name, actions=EventActions(text=chat_text))
 
-        # Emit final batch summary into state (and show in chat)
+        # Final batch summary (state + chat)
         batch_summary = {
             "ok": True,
             "processed": total_processed,
@@ -535,15 +525,23 @@ class BatchValidationAgent(BaseAgent):
             "files": per_file_status,
             "output_dir": str(OUTPUT_DIR),
         }
-        yield Event(author=self.name, actions=EventActions(state_delta={"batch_summary": batch_summary}))
-        # Optional: show a concise summary message in chat
+        # Persist summary in state
+        yield Event(
+            author=self.name,
+            actions=EventActions(state_delta={"batch_summary": batch_summary}, skip_summarization=True),
+        )
+        # Also display in chat
         summary_text = (
-            f"**Batch Completed**\n"
+            f"Batch Completed\n"
             f"Processed: {total_processed} file(s)\n"
-            f"Output folder: `{OUTPUT_DIR}`\n"
+            f"Output folder: {OUTPUT_DIR}\n"
             f"Aggregate counts: {json.dumps(aggregate_counts)}\n"
         )
-        yield Event(author=self.name, actions=EventActions(text=summary_text))
+        yield Event(
+            author=self.name,
+            content=types.Content(parts=[types.Part(text=summary_text)]),
+            actions=EventActions(skip_summarization=True),
+        )
         return
 
 # =========================
@@ -552,26 +550,21 @@ class BatchValidationAgent(BaseAgent):
 root_agent = SequentialAgent(
     name="wallet_contract_batch_validation_workflow",
     description="Batch validate all inputs, explain with Gemini, write outputs, and post each output to chat (prompt-independent).",
-    sub_agents=[
-        BatchValidationAgent(),  # runs automatically on web invocation
-    ],
+    sub_agents=[BatchValidationAgent()],
 )
 
-# (Optional) CLI runner for local testing
+# Optional CLI test
 if __name__ == "__main__":
-    class _DummySession:  # lightweight session stand-in
+    class _DummySession:
         state: Dict[str, Any] = {}
-
     class _DummyContext:
         session = _DummySession()
-
     import asyncio
     async def _run():
-        ctx = _DummyContext()  # no special state needed
+        ctx = _DummyContext()
         agent = BatchValidationAgent()
         async for _ in agent._run_async_impl(ctx):
             pass
         summary = ctx.session.state.get("batch_summary")
         print(json.dumps(summary, indent=2))
-
     asyncio.run(_run())
