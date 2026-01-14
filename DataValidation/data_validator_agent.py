@@ -428,7 +428,6 @@ def _to_markdown(out_doc: Dict[str, Any]) -> str:
         f"### Issue Counts\n{counts_md}\n\n"
         f"### Top Findings\n{issues_md}\n\n"
         f"### LLM Explanation\n{llm_summary_md}\n\n"
-        f"### Suggested Remediations\n{plan_md}\n\n"
         f"### Timing Metrics\n{lag_md}\n\n"
         f"**Timestamp availability:** {avail_md}\n"
     )
