@@ -1,30 +1,26 @@
 
 #!/usr/bin/env python3
 """
-ADK Data Validator Agent
-------------------------
-Validates wallet/customer records against a JSON Schema, enforces null policy,
-and checks pipeline timestamps (monotonic order, SLO lags, future skew, watermark).
-Finally, a Gemini LLM agent produces human-grade explanations and remediation steps.
+ADK Data Validator Agent — Batch-first workflow with Gemini explanations (improved summary text)
+-----------------------------------------------------------------------------------------------
+Validates ALL wallet/customer JSON files under ./data/input against a JSON Schema,
+enforces null policy, and checks pipeline timestamps (monotonic order, SLO lags,
+future skew, watermark). For each input, calls gemini-2.5-flash to generate:
+  - Human-friendly English summary of the validation result (brief, plain English)
+  - Structured remediation plan (JSON)
+
+Writes one uniform output JSON per input to ./data/output.
 
 Folders (relative to THIS FILE):
-  ./data/input/       # JSON inputs
-  ./schemas/wallet_v2.json  # JSON Schema
-
-Workflow (SequentialAgent):
-  1) InputLoaderAgent       -> state['schema'], state['record'], state['selected_file']
-  2) SchemaValidatorAgent   -> state['schema_issues']
-  3) NullPolicyAgent        -> state['null_issues']
-  4) TimestampValidatorAgent-> state['timestamp_issues'], state['timestamp_metrics']
-  5) AggregateAgent         -> state['validation_summary']
-  6) ExplanationAgent (LLM) -> human-friendly explanations + remediation plan
+  ./data/input/            # JSON inputs
+  ./data/output/           # JSON outputs (one per input)
+  ./schemas/wallet_v2.json # JSON Schema (Draft 2020-12)
 
 Requires: google-adk, jsonschema
 """
-
 from __future__ import annotations
-
 import json
+import re
 from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional, Tuple, AsyncGenerator
 from pathlib import Path
@@ -36,20 +32,22 @@ except Exception:
     Draft202012Validator = None
     FormatChecker = None
 
-# --- ADK imports (current paths) ---
+# --- ADK imports ---
 from google.adk.agents.base_agent import BaseAgent
 from google.adk.agents.sequential_agent import SequentialAgent
 from google.adk.agents.invocation_context import InvocationContext
-from google.adk.agents.llm_agent import LlmAgent
-from google.adk.models.google_llm import Gemini
 from google.adk.events.event import Event
 from google.adk.events.event_actions import EventActions  # instantiate with kwargs
+
+# Gemini LLM
+from google.adk.models.google_llm import Gemini
 
 # =========================
 # Project paths
 # =========================
 BASE_DIR = Path(__file__).resolve().parent
 INPUT_DIR = BASE_DIR / "data" / "input"
+OUTPUT_DIR = BASE_DIR / "data" / "output"
 SCHEMA_PATH = BASE_DIR / "schemas" / "wallet_v2.json"
 
 # =========================
@@ -63,7 +61,6 @@ DEFAULT_CRITICAL_PATHS: List[str] = [
     "address.postal_code",
     "address.country_code",
 ]
-
 DEFAULT_TOLERANCES: Dict[str, float] = {
     "event_to_publish_sec": 300.0,
     "publish_to_validate_sec": 120.0,
@@ -71,7 +68,6 @@ DEFAULT_TOLERANCES: Dict[str, float] = {
     "future_skew_sec": 120.0,
     "watermark_hours": 24.0,
 }
-
 NULL_EQUIVALENTS = {"", " ", "N/A", "UNKNOWN", None}
 
 # =========================
@@ -240,199 +236,374 @@ def check_pipeline_timestamps(
     return issues, metrics
 
 # =========================
-# Deterministic Agents (implement _run_async_impl)
+# Uniform output doc builder
 # =========================
-class InputLoaderAgent(BaseAgent):
-    name: str = "input_loader"
-    description: str = "Loads schema and input record from local project folders."
+OUTPUT_DOC_SCHEMA_ID = "adk.wallet.validation.output.v1"
 
-    async def _run_async_impl(self, ctx: InvocationContext) -> AsyncGenerator[Event, None]:
-        state = ctx.session.state
-
-        if not SCHEMA_PATH.is_file():
-            # Emit an informational event (no state change)—LLM will summarize later.
-            yield Event(author=self.name, actions=EventActions())
-            return
-
-        schema = load_json_local(SCHEMA_PATH)
-        yield Event(author=self.name, actions=EventActions(state_delta={"schema": schema}))
-
-        if not INPUT_DIR.is_dir():
-            yield Event(author=self.name, actions=EventActions())
-            return
-
-        candidates = [p for p in INPUT_DIR.iterdir() if p.is_file() and looks_like_json_file(p)]
-        if not candidates:
-            yield Event(author=self.name, actions=EventActions())
-            return
-
-        file_name = state.get("file_name")
-        if file_name:
-            target = INPUT_DIR / file_name
-            if not target.exists():
-                yield Event(author=self.name, actions=EventActions())
-                return
-        else:
-            target = sorted(candidates)[0]
-
-        record = load_json_local(target)
-        yield Event(author=self.name, actions=EventActions(state_delta={
-            "record": record,
-            "selected_file": str(target),
-            "available_files": [str(p) for p in sorted(candidates)],
-        }))
-        return
-
-class SchemaValidatorAgent(BaseAgent):
-    name: str = "schema_validator"
-    description: str = "Validates record against JSON Schema (Draft 2020-12)."
-
-    async def _run_async_impl(self, ctx: InvocationContext) -> AsyncGenerator[Event, None]:
-        state = ctx.session.state
-        record = state.get("record")
-        schema = state.get("schema")
-        if record is None or schema is None:
-            yield Event(author=self.name, actions=EventActions())
-            return
-
-        issues = iter_contract_issues_full(record, schema)
-        yield Event(author=self.name, actions=EventActions(state_delta={"schema_issues": issues}))
-        return
-
-class NullPolicyAgent(BaseAgent):
-    name: str = "null_policy_validator"
-    description: str = "Checks null policy across critical paths."
-
-    async def _run_async_impl(self, ctx: InvocationContext) -> AsyncGenerator[Event, None]:
-        state = ctx.session.state
-        record = state.get("record")
-        critical_paths: List[str] = state.get("critical_paths") or DEFAULT_CRITICAL_PATHS
-        if record is None:
-            yield Event(author=self.name, actions=EventActions())
-            return
-
-        issues = collect_null_policy_issues(record, critical_paths)
-        yield Event(author=self.name, actions=EventActions(state_delta={"null_issues": issues}))
-        return
-
-class TimestampValidatorAgent(BaseAgent):
-    name: str = "timestamp_validator"
-    description: str = "Checks monotonic order, SLO lags, future skew, watermark."
-
-    async def _run_async_impl(self, ctx: InvocationContext) -> AsyncGenerator[Event, None]:
-        state = ctx.session.state
-        record = state.get("record")
-        tolerances: Dict[str, float] = state.get("tolerances") or DEFAULT_TOLERANCES
-        if record is None:
-            yield Event(author=self.name, actions=EventActions())
-            return
-
-        issues, metrics = check_pipeline_timestamps(record, tolerances)
-        yield Event(author=self.name, actions=EventActions(state_delta={
-            "timestamp_issues": issues,
-            "timestamp_metrics": metrics,
-        }))
-        return
-
-class AggregateAgent(BaseAgent):
-    name: str = "aggregate_validator_results"
-    description: str = "Aggregates issues from agents into validation_summary."
-
-    async def _run_async_impl(self, ctx: InvocationContext) -> AsyncGenerator[Event, None]:
-        state = ctx.session.state
-        record = state.get("record") or {}
-        schema_issues = state.get("schema_issues") or []
-        null_issues = state.get("null_issues") or []
-        ts_issues = state.get("timestamp_issues") or []
-        ts_metrics = state.get("timestamp_metrics") or {}
-
-        issues = schema_issues + null_issues + ts_issues
-        ok = len(issues) == 0
-        summary = {
-            "counts": {
-                "schema_issues": len(schema_issues),
-                "null_issues": len(null_issues),
-                "timestamp_issues": len(ts_issues),
-                "total": len(issues),
-            },
-            "timestamp_metrics": ts_metrics,
-            "record_hint": record.get("wallet_id") or record.get("customer_id") or "<unknown>",
-            "selected_file": state.get("selected_file"),
-        }
-        yield Event(author=self.name, actions=EventActions(state_delta={
-            "validation_summary": {"ok": ok, "issues": issues, "summary": summary}
-        }))
-        return
+def _build_output_doc(
+    input_path: Path,
+    record_hint: str,
+    counts: Dict[str, int],
+    timestamp_metrics: Dict[str, Any],
+    issues: List[Dict[str, Any]],
+    ok: bool,
+    llm_summary_text: str,
+    llm_structured: Dict[str, Any],
+) -> Dict[str, Any]:
+    """
+    Uniform output JSON schema for ALL inputs:
+    {
+      "$schema": "adk.wallet.validation.output.v1",
+      "input_file": "...",
+      "record_hint": "...",
+      "ok": true/false,
+      "counts": { ... },
+      "issues": [ ... ],
+      "timestamp_metrics": { "availability": {...}, "lags_sec": {...} },
+      "llm": { "summary_text": "...", "structured": { ... } }
+    }
+    """
+    return {
+        "$schema": OUTPUT_DOC_SCHEMA_ID,
+        "input_file": str(input_path),
+        "record_hint": record_hint,
+        "ok": ok,
+        "counts": counts,
+        "issues": issues,
+        "timestamp_metrics": timestamp_metrics,
+        "llm": {
+            "summary_text": llm_summary_text,
+            "structured": llm_structured,
+        },
+    }
 
 # =========================
-# LLM Agent (Gemini) for explanations
+# Gemini (gemini-2.5-flash) explanation helper
 # =========================
 _gemini_model = Gemini(
     model="gemini-2.5-flash",
     use_interactions_api=True,
 )
 
-ExplanationAgent = LlmAgent(
-    name="dq_explanation_agent",
-    description="Explains validation failures and provides remediation suggestions.",
-    model=_gemini_model,
-    instruction=(
-        """
-You are a data quality validator/explainer for wallet/customer records.
-You are given a validation summary with detailed issues from deterministic tools.
+_EXPLANATION_SYSTEM_PROMPT = """You are a data quality validator/explainer for wallet/customer records.
 
-Tasks:
-1) Explain each issue in human-friendly terms (why it failed).
-2) Provide concrete remediation steps (how to fix), with examples.
-3) Propose safe, minimal transformations (uppercase ISO country codes, case-fold enums,
-   convert currency strings to numeric) without contradicting hard rules.
-4) Output BOTH:
-   (a) a brief human-readable summary, and
-   (b) a structured JSON:
-       {
-         "explanations": [{"field_path","category","severity","why","how_to_fix"}],
-         "remediation_plan": [{"priority","step","example"}],
-         "compliance_status": {"ok", "summary"}
-       }
+Return your answer in TWO parts:
+1) A brief plain-English paragraph beginning with the literal header:
+   SUMMARY:
+   Keep it under 4 sentences, explain what passed/failed and the main reason(s).
+   Mention practical remediation actions (e.g., fix timestamps, correct formats, fill required fields).
+2) A single JSON object with EXACT keys:
+   {
+     "explanations": [{"field_path":"...", "category":"...", "severity":"...", "why":"...", "how_to_fix":"..."}],
+     "remediation_plan": [{"priority":"high|medium|low", "step":"...", "example":"..."}],
+     "compliance_status": {"ok": true|false, "summary": "one-sentence status"}
+   }
+Do NOT include code fences or additional commentary around the JSON.
+"""
 
-Validation summary:
-{validation_summary}
-        """
-    ),
-)
+def _extract_summary_and_json(text: str) -> Tuple[str, Optional[Dict[str, Any]]]:
+    """
+    Extract `SUMMARY:` paragraph and the first JSON object from the LLM response.
+    Returns (summary_text, structured_json_or_none).
+    """
+    # Extract SUMMARY: ... until a line that looks like JSON begins
+    summary_text = ""
+    json_obj: Optional[Dict[str, Any]] = None
+
+    # 1) Find JSON object (first balanced brace block)
+    json_match = re.search(r"\{.*\}", text, flags=re.DOTALL)
+    json_block = json_match.group(0) if json_match else None
+
+    # 2) Summary: everything before the JSON block, specifically starting after 'SUMMARY:'
+    if json_block:
+        before_json = text[:json_match.start()]
+    else:
+        before_json = text
+
+    # Try to locate "SUMMARY:" marker
+    m = re.search(r"SUMMARY:\s*(.*)", before_json, flags=re.DOTALL)
+    if m:
+        summary_text = m.group(1).strip()
+        # collapse excessive whitespace
+        summary_text = re.sub(r"\s+", " ", summary_text).strip()
+    else:
+        summary_text = before_json.strip()
+
+    # Parse JSON if present
+    if json_block:
+        try:
+            json_obj = json.loads(json_block)
+        except Exception:
+            json_obj = None
+
+    return summary_text, json_obj
+
+def build_deterministic_summary_text(ok: bool, issues: List[Dict[str, Any]], counts: Dict[str, int]) -> str:
+    """
+    Fallback English summary if LLM output is not helpful.
+    """
+    if ok:
+        return "The record passed all validations. No schema, null, or timestamp issues were found."
+    if not issues:
+        return "The record did not pass validation, but no specific issues were enumerated. Re-run validation or check input parsing."
+    # Build concise reason list
+    cats = [i.get("category", "issue") for i in issues]
+    unique_cats = sorted(set(cats))
+    main = f"The record failed validation due to: {', '.join(unique_cats)}."
+    # Quick remediation hints
+    hints = []
+    if counts.get("schema_issues", 0) > 0:
+        hints.append("ensure required fields exist, types match, and formats/enums are correct")
+    if counts.get("null_issues", 0) > 0:
+        hints.append("populate mandatory fields and remove null-equivalent values")
+    if counts.get("timestamp_issues", 0) > 0:
+        hints.append("fix event/publish/validate/commit ordering and keep lags within SLO; avoid excessive lateness beyond the watermark")
+    rem = (" Suggested remediation: " + "; ".join(hints) + ".") if hints else ""
+    return (main + rem).strip()
+
+def invoke_gemini_explanation(validation_summary: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
+    """
+    Calls gemini-2.5-flash to get (summary_text, structured_json).
+    Enforces plain-English summary and structured JSON. Falls back to deterministic
+    summary if the LLM output isn't usable.
+    """
+    user_payload = "Validation summary:\n" + json.dumps(validation_summary, indent=2)
+    prompt = _EXPLANATION_SYSTEM_PROMPT + "\n\n" + user_payload
+
+    llm_text = ""
+    try:
+        # Try common ADK Gemini invocation methods
+        if hasattr(_gemini_model, "generate"):
+            resp = _gemini_model.generate(prompt=prompt)
+            llm_text = getattr(resp, "text", None) or (resp if isinstance(resp, str) else json.dumps(resp, ensure_ascii=False))
+        elif hasattr(_gemini_model, "generate_content"):
+            resp = _gemini_model.generate_content(prompt)
+            llm_text = getattr(resp, "text", None) or (resp if isinstance(resp, str) else json.dumps(resp, ensure_ascii=False))
+        elif hasattr(_gemini_model, "complete"):
+            resp = _gemini_model.complete(prompt=prompt)
+            llm_text = getattr(resp, "text", None) or (resp if isinstance(resp, str) else json.dumps(resp, ensure_ascii=False))
+        else:
+            resp = _gemini_model(prompt) if callable(_gemini_model) else str(validation_summary)
+            llm_text = getattr(resp, "text", None) or (resp if isinstance(resp, str) else json.dumps(resp, ensure_ascii=False))
+    except Exception as e:
+        llm_text = f"LLM call failed: {e}"
+
+    summary_text, structured = _extract_summary_and_json(llm_text)
+
+    # If either part is missing or summary looks like raw dict, fallback to deterministic
+    ok = bool(validation_summary.get("ok"))
+    counts = validation_summary.get("summary", {}).get("counts", {}) or validation_summary.get("counts", {}) or {}
+    issues = validation_summary.get("issues", [])
+
+    def looks_like_dict_dump(s: str) -> bool:
+        return bool(re.search(r"^\s*\{.*\}\s*$", s))
+
+    if not summary_text or looks_like_dict_dump(summary_text):
+        summary_text = build_deterministic_summary_text(ok, issues, counts)
+
+    if structured is None:
+        structured = {}
+
+    return summary_text, structured
 
 # =========================
-# Root workflow (SequentialAgent)
+# Batch Validation Agent (runs automatically)
+# =========================
+class BatchValidationAgent(BaseAgent):
+    name: str = "batch_validation_runner"
+    description: str = "Iterates all JSONs in data/input, validates, explains via Gemini, and writes uniform outputs to data/output."
+
+    async def _run_async_impl(self, ctx: InvocationContext) -> AsyncGenerator[Event, None]:
+        state = ctx.session.state
+
+        # Ensure paths
+        if not SCHEMA_PATH.is_file():
+            yield Event(
+                author=self.name,
+                actions=EventActions(state_delta={"batch_summary": {"ok": False, "detail": f"Schema file not found: {SCHEMA_PATH}"}})
+            )
+            return
+        if not INPUT_DIR.is_dir():
+            yield Event(
+                author=self.name,
+                actions=EventActions(state_delta={"batch_summary": {"ok": False, "detail": f"Input directory not found: {INPUT_DIR}"}})
+            )
+            return
+
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+        # Load schema once
+        try:
+            schema = load_json_local(SCHEMA_PATH)
+        except Exception as e:
+            yield Event(
+                author=self.name,
+                actions=EventActions(state_delta={"batch_summary": {"ok": False, "detail": f"Failed to load schema: {e}"}})
+            )
+            return
+
+        # Enumerate candidate inputs
+        candidates: List[Path] = [p for p in INPUT_DIR.iterdir() if p.is_file() and looks_like_json_file(p)]
+        if not candidates:
+            yield Event(
+                author=self.name,
+                actions=EventActions(state_delta={"batch_summary": {"ok": True, "processed": 0, "files": [], "detail": "No JSON files found in input."}})
+            )
+            return
+
+        # Allow overrides from state (optional)
+        critical_paths: List[str] = state.get("critical_paths") or DEFAULT_CRITICAL_PATHS
+        tolerances: Dict[str, float] = state.get("tolerances") or DEFAULT_TOLERANCES
+
+        aggregate_counts = {"schema_issues": 0, "null_issues": 0, "timestamp_issues": 0, "total": 0}
+        per_file_status: List[Dict[str, Any]] = []
+        total_processed = 0
+
+        for input_path in sorted(candidates):
+            total_processed += 1
+
+            # Safe load record
+            try:
+                record = load_json_local(input_path)
+                if not isinstance(record, dict):
+                    raise ValueError("Top-level JSON must be an object.")
+            except Exception as exc:
+                # Unreadable record -> emit uniform doc with parse error
+                issues = [{
+                    "category": "input_parse_error",
+                    "field_path": "",
+                    "detail": f"Failed to read/parse JSON: {exc}",
+                    "validator": "json",
+                    "severity": "high",
+                }]
+                counts = {
+                    "schema_issues": 0,
+                    "null_issues": 0,
+                    "timestamp_issues": 0,
+                    "total": len(issues),
+                }
+                ok = False
+                record_hint = "<unreadable>"
+                ts_metrics: Dict[str, Any] = {}
+
+                validation_summary = {
+                    "counts": counts,
+                    "timestamp_metrics": ts_metrics,
+                    "record_hint": record_hint,
+                    "selected_file": str(input_path),
+                }
+                llm_summary_text, llm_structured = invoke_gemini_explanation(
+                    {"ok": ok, "issues": issues, "summary": validation_summary}
+                )
+
+                out_doc = _build_output_doc(
+                    input_path=input_path,
+                    record_hint=record_hint,
+                    counts=counts,
+                    timestamp_metrics=ts_metrics,
+                    issues=issues,
+                    ok=ok,
+                    llm_summary_text=llm_summary_text,
+                    llm_structured=llm_structured,
+                )
+            else:
+                # Deterministic validations
+                try:
+                    schema_issues = iter_contract_issues_full(record, schema)
+                except Exception as e:
+                    schema_issues = [{
+                        "category": "schema_validation_error",
+                        "field_path": "",
+                        "detail": str(e),
+                        "validator": "jsonschema",
+                        "severity": "high",
+                    }]
+
+                null_issues = collect_null_policy_issues(record, critical_paths)
+                ts_issues, ts_metrics = check_pipeline_timestamps(record, tolerances)
+
+                issues: List[Dict[str, Any]] = schema_issues + null_issues + ts_issues
+                counts = {
+                    "schema_issues": len(schema_issues),
+                    "null_issues": len(null_issues),
+                    "timestamp_issues": len(ts_issues),
+                    "total": len(issues),
+                }
+                ok = len(issues) == 0
+                record_hint = record.get("wallet_id") or record.get("customer_id") or "<unknown>"
+
+                # Build validation_summary for the LLM
+                validation_summary = {
+                    "counts": counts,
+                    "timestamp_metrics": ts_metrics,
+                    "record_hint": record_hint,
+                    "selected_file": str(input_path),
+                }
+                llm_summary_text, llm_structured = invoke_gemini_explanation(
+                    {"ok": ok, "issues": issues, "summary": validation_summary}
+                )
+
+                out_doc = _build_output_doc(
+                    input_path=input_path,
+                    record_hint=record_hint,
+                    counts=counts,
+                    timestamp_metrics=ts_metrics,
+                    issues=issues,
+                    ok=ok,
+                    llm_summary_text=llm_summary_text,
+                    llm_structured=llm_structured,
+                )
+
+                # Update aggregates
+                for k in aggregate_counts.keys():
+                    aggregate_counts[k] += counts.get(k, 0)
+
+            # Write output per file
+            out_path = OUTPUT_DIR / f"{input_path.stem}.validation.json"
+            try:
+                with open(out_path, "w", encoding="utf-8") as f:
+                    json.dump(out_doc, f, indent=2, ensure_ascii=False)
+                per_file_status.append({"file": str(input_path), "output": str(out_path), "ok": out_doc["ok"], "counts": out_doc["counts"]})
+            except Exception as write_exc:
+                per_file_status.append({"file": str(input_path), "output": str(out_path), "ok": False, "error": f"Failed to write output: {write_exc}"})
+
+        # Emit final batch summary into state
+        batch_summary = {
+            "ok": True,
+            "processed": total_processed,
+            "aggregate_counts": aggregate_counts,
+            "files": per_file_status,
+            "output_dir": str(OUTPUT_DIR),
+        }
+        yield Event(author=self.name, actions=EventActions(state_delta={"batch_summary": batch_summary}))
+        return
+
+# =========================
+# Root workflow (Batch-first)
 # =========================
 root_agent = SequentialAgent(
-    name="wallet_contract_validation_workflow",
-    description="InputLoader → JSON Schema → Null policy → Timestamps → Aggregate → LLM explanation",
+    name="wallet_contract_batch_validation_workflow",
+    description="Batch validate all inputs, explain with Gemini, and write uniform outputs (prompt-independent).",
     sub_agents=[
-        InputLoaderAgent(),
-        SchemaValidatorAgent(),
-        NullPolicyAgent(),
-        TimestampValidatorAgent(),
-        AggregateAgent(),
-        ExplanationAgent,
+        BatchValidationAgent(),  # runs automatically on web invocation
     ],
 )
 
-# =========================
-# Optional helper (programmatic seeding)
-# =========================
-async def seed_state_from_strings(
-    ctx: InvocationContext,
-    record_json_str: str,
-    schema_json_str: str,
-    critical_paths: Optional[List[str]] = None,
-    tolerances: Optional[Dict[str, float]] = None,
-    file_name: Optional[str] = None,
-) -> None:
-    ctx.session.state["record"] = json.loads(record_json_str)
-    ctx.session.state["schema"] = json.loads(schema_json_str)
-    if critical_paths:
-        ctx.session.state["critical_paths"] = critical_paths
-    if tolerances:
-        ctx.session.state["tolerances"] = tolerances
-    if file_name:
-        ctx.session.state["file_name"] = file_name
+# (Optional) CLI runner for local testing
+if __name__ == "__main__":
+    class _DummySession:  # lightweight session stand-in
+        state: Dict[str, Any] = {}
+
+    class _DummyContext:
+        session = _DummySession()
+
+    import asyncio
+    async def _run():
+        ctx = _DummyContext()  # no special state needed
+        agent = BatchValidationAgent()
+        async for _ in agent._run_async_impl(ctx):
+            pass
+        summary = ctx.session.state.get("batch_summary")
+        print(json.dumps(summary, indent=2))
+
+    asyncio.run(_run())

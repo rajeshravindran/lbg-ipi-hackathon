@@ -1,0 +1,562 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Digital Wallet – Executive Aggregations Dashboard</title>
+
+  <!-- ✅ Correct Chart.js script tag -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    /* ===================== EXECUTIVE LIGHT THEME (WHITE) ===================== */
+    :root{
+      /* Core palette */
+      --bg:#ffffff;                 /* page background */
+      --panel:#ffffff;              /* card surface */
+      --ink:#0f172a;                /* primary text */
+      --muted:#64748b;              /* secondary text */
+      --line:#e5e7eb;               /* borders */
+
+      /* Accents (charts/buttons) */
+      --accent:#10b981;             /* teal/green */
+      --accent-2:#6366f1;           /* indigo */
+      --accent-3:#f59e0b;           /* amber */
+      --accent-4:#ef4444;           /* red */
+      --accent-5:#06b6d4;           /* cyan */
+
+      /* Elevation & radii */
+      --gap:12px;
+      --radius:14px;
+      --shadow:0 10px 24px rgba(15,23,42,.08);          /* card shadow */
+      --shadow-strong:0 12px 36px rgba(15,23,42,.12);   /* header shadow */
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%}
+    body{
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      letter-spacing:.2px;
+    }
+
+    /* =========================== Header ============================ */
+    header{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:16px 22px; position:sticky; top:0; z-index:10;
+      backdrop-filter:saturate(1.1) blur(4px);
+      background: rgba(255,255,255,.85);
+      border-bottom:1px solid var(--line);
+      box-shadow: var(--shadow-strong);
+    }
+    header h1{margin:0; font-size:20px; font-weight:800; letter-spacing:.3px; color:#111827}
+    header .sub{color:var(--muted); font-size:12px}
+    .actions{display:flex; gap:10px}
+    .btn{
+      background: linear-gradient(180deg, rgba(16,185,129,.16), rgba(16,185,129,.06));
+      border:1px solid rgba(16,185,129,.30);
+      color:#064e3b; padding:8px 12px; border-radius:10px; cursor:pointer;
+      font-size:12px;
+    }
+    .btn.secondary{
+      background:#fff; border:1px solid var(--line);
+      color:#1f2937;
+    }
+
+    /* ========================== Page Layout ========================= */
+    .page{padding:16px 22px; max-width:1400px; margin:0 auto}
+    .grid{display:grid; gap:var(--gap)}
+    .grid.kpi{grid-template-columns:repeat(12, minmax(0,1fr))}
+    .grid.charts{grid-template-columns:repeat(12, minmax(0,1fr))}
+    .grid.agents{grid-template-columns:repeat(12, minmax(0,1fr))}
+
+    /* ============================ Cards ============================ */
+    .card{
+      background: var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:12px;
+    }
+    .card .title{
+      margin:0 0 8px; font-size:14px; color:#0f172a; font-weight:700;
+      display:flex; align-items:center; gap:8px;
+    }
+    .muted{color:var(--muted)}
+    .sep{height:1px; background:var(--line); margin:8px 0}
+
+    /* ============================ KPIs ============================ */
+    .kpi-tile{display:flex; flex-direction:column; gap:6px; padding:4px 0}
+    .kpi-value{font-size:26px; font-weight:800; color:#0f172a}
+    .kpi-label{font-size:12px; color:#64748b}
+    .badge{
+      display:inline-block; padding:2px 8px; border-radius:999px;
+      background:#f1f5f9; color:#0f172a; border:1px solid var(--line);
+      font-size:11px;
+    }
+
+    /* ======================= Agent mini-cards ====================== */
+    .agent-card{
+      display:grid; grid-template-columns: 1fr auto; gap:8px; align-items:center;
+      min-height:110px;
+    }
+    .mini-chart-wrap{
+      width:160px; height:110px;
+      display:flex; align-items:center; justify-content:center;
+      border-left:1px dashed var(--line); padding-left:8px; background:#fafafa;
+      border-top-right-radius:var(--radius); border-bottom-right-radius:var(--radius);
+    }
+    .mini-chart{width:150px; height:100px;}
+
+    /* ====================== Summary small charts =================== */
+    .small-chart-wrap{ height:130px; background:#fafafa; border-radius:12px; }
+    .small-chart{ width:100%; height:120px !important; }
+
+    /* =========================== Responsive ======================== */
+    @media (max-width: 1140px){
+      .mini-chart-wrap{display:none}
+      .agent-card{grid-template-columns: 1fr}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Digital Wallet – Executive Aggregations</h1>
+      <div class="sub">Address Validator • AML • KYC • Data Validation • Dormant • Parsing</div>
+    </div>
+    <div class="actions">
+      <button class="btn secondary" id="exportCsv">Export CSV</button>
+      <button class="btn secondary" id="exportJson">Export JSON</button>
+    </div>
+  </header>
+
+  <main class="page">
+    <!-- ===== Global KPIs (Top row) ===== -->
+    <section class="grid kpi">
+      <div class="card" style="grid-column: span 4;">
+        <div class="kpi-tile">
+          <div class="kpi-value" id="kpiUsers">0</div>
+          <div class="kpi-label">Total Users</div>
+        </div>
+      </div>
+      <div class="card" style="grid-column: span 4;">
+        <div class="kpi-tile">
+          <div class="kpi-value" id="kpiRecords">0</div>
+          <div class="kpi-label">Total Records (All Agents)</div>
+        </div>
+      </div>
+      <div class="card" style="grid-column: span 4;">
+        <div class="kpi-tile">
+          <div class="kpi-value" id="kpiRisk">–</div>
+          <div class="kpi-label">Average Risk (All)</div>
+        </div>
+      </div>
+      <!-- Removed the 'Top Address Flag' tile per your request -->
+    </section>
+
+    <!-- ===== Summary charts (Second row: only two tiles) ===== -->
+    <section class="grid charts" style="margin-top:12px;">
+      <div class="card" style="grid-column: span 6;">
+        <h3 class="title">Records per Agent</h3>
+        <div class="small-chart-wrap"><canvas class="small-chart" id="agentCountChart"></canvas></div>
+      </div>
+      <div class="card" style="grid-column: span 6;">
+        <h3 class="title">Risk Score Distribution</h3>
+        <div class="small-chart-wrap"><canvas class="small-chart" id="riskChart"></canvas></div>
+      </div>
+      <!-- Removed the third summary tile to avoid redundancy -->
+    </section>
+
+    <!-- ===== Agent mini-cards (agent-specific logic) ===== -->
+    <section class="grid agents" style="margin-top:12px;">
+      <!-- Address Validator -->
+      <div class="card agent-card" style="grid-column: span 4;">
+        <div>
+          <h3 class="title">Address Validator</h3>
+          <div class="muted" id="addrMeta">–</div>
+          <div class="sep"></div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap; font-size:12px;">
+            <div><span class="badge"><strong id="addrValidated">0</strong> Validated</span></div>
+            <div><span class="badge"><strong id="addrDup">0</strong> Duplicates</span></div>
+            <div><span class="badge">Avg Risk <strong id="addrAvg">–</strong></span></div>
+            <div><span class="badge">Top Flag <strong id="addrTop">–</strong></span></div>
+            <!-- Non-redundant, additional metric -->
+            <div><span class="badge">High‑risk % <strong id="addrHighRiskPct">–</strong></span></div>
+          </div>
+        </div>
+        <div class="mini-chart-wrap"><canvas class="mini-chart" id="addressClassChart"></canvas></div>
+      </div>
+
+      <!-- AML -->
+      <div class="card agent-card" style="grid-column: span 4;">
+        <div>
+          <h3 class="title">AML</h3>
+          <div class="muted" id="amlMeta">–</div>
+          <div class="sep"></div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap; font-size:12px;">
+            <div><span class="badge">Pass <strong id="amlPass">0%</strong></span></div>
+            <div><span class="badge">Duplicate <strong id="amlDup">0</strong></span></div>
+            <div><span class="badge">Morphed <strong id="amlMorph">0</strong></span></div>
+            <div><span class="badge">Wrong Addr <strong id="amlWrong">0</strong></span></div>
+          </div>
+        </div>
+        <div class="mini-chart-wrap"><canvas class="mini-chart" id="amlChart"></canvas></div>
+      </div>
+
+      <!-- KYC -->
+      <div class="card agent-card" style="grid-column: span 4;">
+        <div>
+          <h3 class="title">KYC / Address</h3>
+          <div class="muted" id="kycMeta">–</div>
+          <div class="sep"></div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap; font-size:12px;">
+            <div><span class="badge">ISO <strong id="kycISO">0%</strong></span></div>
+            <div><span class="badge">Postcode <strong id="kycPost">0%</strong></span></div>
+            <div><span class="badge">High-risk <strong id="kycHigh">0</strong></span></div>
+          </div>
+        </div>
+        <div class="mini-chart-wrap"><canvas class="mini-chart" id="kycChart"></canvas></div>
+      </div>
+
+      <!-- Data Validation (updated: pass/fail + non-redundant metrics) -->
+      <div class="card agent-card" style="grid-column: span 4;">
+        <div>
+          <h3 class="title">Data Validation</h3>
+          <div class="muted" id="dvMeta">–</div>
+          <div class="sep"></div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap; font-size:12px;">
+            <div><span class="badge">Pass % <strong id="dvPass">0%</strong></span></div>
+            <div><span class="badge">Fail % <strong id="dvFail">0%</strong></span></div>
+            <div><span class="badge">Avg issues/failed <strong id="dvAvgPerFail">–</strong></span></div>
+            <div><span class="badge">Multi‑category fails % <strong id="dvMultiCatPct">–</strong></span></div>
+          </div>
+        </div>
+        <div class="mini-chart-wrap"><canvas class="mini-chart" id="dvChart"></canvas></div>
+      </div>
+
+      <!-- Dormant -->
+      <div class="card agent-card" style="grid-column: span 4;">
+        <div>
+          <h3 class="title">Dormant Accounts</h3>
+          <div class="muted" id="dormMeta">–</div>
+          <div class="sep"></div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap; font-size:12px;">
+            <div><span class="badge">Contact <strong id="dormContact">0</strong></span></div>
+            <div><span class="badge">Close <strong id="dormClose">0</strong></span></div>
+            <div><span class="badge">Investigate <strong id="dormInvestigate">0</strong></span></div>
+            <div><span class="badge">Ext Match <strong id="dormExt">0</strong></span></div>
+          </div>
+        </div>
+        <div class="mini-chart-wrap"><canvas class="mini-chart" id="dormChart"></canvas></div>
+      </div>
+
+      <!-- Parsing -->
+      <div class="card agent-card" style="grid-column: span 4;">
+        <div>
+          <h3 class="title">Document Parsing</h3>
+          <div class="muted" id="parseMeta">–</div>
+          <div class="sep"></div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap; font-size:12px;">
+            <div><span class="badge">Parsed <strong id="parseParsed">0</strong></span></div>
+            <div><span class="badge">Unparsed <strong id="parseUnparsed">0</strong></span></div>
+            <div><span class="badge">Fields(avg) <strong id="parseAvg">–</strong></span></div>
+            <div><span class="badge">Top Reason <strong id="parseTop">–</strong></span></div>
+          </div>
+        </div>
+        <div class="mini-chart-wrap"><canvas class="mini-chart" id="parseChart"></canvas></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ====================== JS (loader + agent-specific renders) ====================== -->
+  <script>
+    /* 1) Hardcoded folders (update paths if needed) */
+    const FOLDERS = {
+      AddressValidator_Agent: "data/AddressValidator_Agent/",
+      AML_Agent:               "data/AML_Agent/",
+      KYC_Address_Agent:       "data/KYC_Address_Agent/",
+      DataValidation_Agent:    "data/DataValidation_Agent/",
+      DormantAccount_Agent:    "data/DormantAccount_Agent/",
+      DocumentParsing_Agent:   "data/DocumentParsing_Agent/"
+    };
+
+    /* 2) State & helpers */
+    const STATE = {
+      AddressValidator_Agent: [],
+      AML_Agent: [],
+      KYC_Address_Agent: [],
+      DataValidation_Agent: [],
+      DormantAccount_Agent: [],
+      DocumentParsing_Agent: []
+    };
+    const ALL = () => ([
+      ...STATE.AddressValidator_Agent,
+      ...STATE.AML_Agent,
+      ...STATE.KYC_Address_Agent,
+      ...STATE.DataValidation_Agent,
+      ...STATE.DormantAccount_Agent,
+      ...STATE.DocumentParsing_Agent
+    ]);
+
+    const sum = (arr, sel=(x)=>x)=>arr.reduce((a,x)=>a+(sel(x)||0),0);
+    const avg = (arr, sel=(x)=>x)=>arr.length ? (sum(arr, sel)/arr.length) : 0;
+    const pct = (n,d)=> d ? Math.round((n/d)*1000)/10 : 0;
+    const groupBy = (arr, key)=>arr.reduce((acc,x)=>{ const k=x[key]; acc[k]=acc[k]||[]; acc[k].push(x); return acc; },{});
+    const format = (v)=>(v||v===0) ? (typeof v==='number' ? v.toLocaleString() : String(v)) : '–';
+
+    /* 3) Robust folder enumeration */
+    async function listJsonFiles(folderUrl){
+      const ensureSlash = folderUrl.endsWith('/') ? folderUrl : folderUrl + '/';
+
+      // Try index.json first
+      try {
+        const idxRes = await fetch(ensureSlash + 'index.json');
+        if (idxRes.ok) {
+          const arr = await idxRes.json();
+          if (Array.isArray(arr)) {
+            return arr
+              .map(String)
+              .filter(name => /\.json(\?|#|$)/i.test(name))
+              .map(name => ensureSlash + name.replace(/^\.\//,''));
+          }
+        }
+      } catch(e){ /* ignore */ }
+
+      // Fallback: parse directory listing HTML
+      try {
+        const res = await fetch(ensureSlash);
+        if (!res.ok) return [];
+        const html = await res.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        // Anchors
+        let files = Array.from(doc.querySelectorAll('a[href]'))
+          .map(a => a.getAttribute('href'))
+          .filter(h => h && /\.json(\?|#|$)/i.test(h))
+          .map(h => (h.startsWith('http')||h.startsWith('/')) ? h : ensureSlash + h.replace(/^\.\//,''));
+
+        // Regex fallback
+        if (!files.length) {
+          const matches = Array.from(html.matchAll(/href\s*=\s*"(.*?)"/gi))
+            .map(m => m[1])
+            .filter(h => h && /\.json(\?|#|$)/i.test(h))
+            .map(h => ensureSlash + h.replace(/^\.\//,''));
+          files = matches;
+        }
+        return files;
+      } catch(err){ return []; }
+    }
+
+    /* 4) Load & normalize records (log failures) */
+    async function loadFolder(agentKey, folderUrl){
+      const files = await listJsonFiles(folderUrl);
+      const list = [];
+      for (const url of files){
+        try {
+          const resp = await fetch(url);
+          if (!resp.ok) { console.warn('[fetch failed]', resp.status, url); continue; }
+          const data = await resp.json();
+          if (Array.isArray(data)) data.forEach(rec => { rec.agent = rec.agent || agentKey; list.push(rec); });
+          else { data.agent = data.agent || agentKey; list.push(data); }
+        } catch(err){
+          console.warn('[parse failed]', url, err);
+        }
+      }
+      STATE[agentKey] = list;
+    }
+
+    async function loadAll(){
+      for (const [agent, folder] of Object.entries(FOLDERS)) { await loadFolder(agent, folder); }
+      renderAll();
+    }
+
+    /* 5) Chart factories */
+    function makeDoughnut(id, labels, data, title){
+      if (!window.Chart) return;
+      const el = document.getElementById(id); if (!el) return;
+      if (el._chart) el._chart.destroy();
+      el._chart = new Chart(el, {
+        type:'doughnut',
+        data:{ labels, datasets:[{ data, backgroundColor:['#10b981','#6366f1','#f59e0b','#ef4444','#06b6d4','#22c55e'] }] },
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          plugins:{
+            title: title ? { display:true, text:title, color:'#0f172a', font:{ size:12, weight:'600' } } : { display:false },
+            legend:{ display:false },
+            tooltip:{ enabled:true }
+          },
+          cutout:'58%'
+        }
+      });
+    }
+    function makeBar(id, labels, data){
+      if (!window.Chart) return;
+      const el = document.getElementById(id); if (!el) return;
+      if (el._chart) el._chart.destroy();
+      el._chart = new Chart(el, {
+        type:'bar',
+        data:{ labels, datasets:[{ data, backgroundColor:'#10b981' }] },
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          scales:{ x:{ ticks:{ color:'#0f172a', font:{ size:10 } }, grid:{ display:false } },
+                   y:{ ticks:{ color:'#64748b', font:{ size:10 } }, grid:{ color:'rgba(226,232,240,.8)' } } },
+          plugins:{ legend:{ display:false }, tooltip:{ enabled:true } },
+          categoryPercentage:.6, barPercentage:.6
+        }
+      });
+    }
+
+    /* 6) Render (KPIs, summary charts, and agent mini-cards) */
+    function renderAll(){ renderKPIs(); renderSummaryCharts(); renderAgents(); }
+
+    function renderKPIs(){
+      const records = ALL();
+      const users = new Set(records.map(r=>r.user_id).filter(Boolean));
+      document.getElementById('kpiUsers').textContent = users.size;
+      document.getElementById('kpiRecords').textContent = records.length;
+
+      const risks = records.map(r=>r.risk_score).filter(v=>typeof v==='number');
+      document.getElementById('kpiRisk').textContent = risks.length ? Math.round(avg(risks)) : '–';
+    }
+
+    function renderSummaryCharts(){
+      if (!window.Chart) return;
+
+      /* Records per agent (bar) */
+      const counts = [
+        STATE.AddressValidator_Agent.length,
+        STATE.AML_Agent.length,
+        STATE.KYC_Address_Agent.length,
+        STATE.DataValidation_Agent.length,
+        STATE.DormantAccount_Agent.length,
+        STATE.DocumentParsing_Agent.length
+      ];
+      makeBar('agentCountChart', ['Address','AML','KYC','DataVal','Dormant','Parsing'], counts);
+
+      /* Risk score distribution (bar) */
+      const risks = ALL().map(r=>r.risk_score).filter(v=>typeof v==='number');
+      const b=[0,20,40,60,80,100], c=new Array(b.length-1).fill(0);
+      risks.forEach(v => { for(let i=0;i<b.length-1;i++){ if(v>=b[i] && v<b[i+1]){ c[i]++; break; } } });
+      makeBar('riskChart', ['0–19','20–39','40–59','60–79','80–99'], c);
+    }
+
+    function renderAgents(){
+      /* ---- Address Validator ---- */
+      const addr = STATE.AddressValidator_Agent;
+      document.getElementById('addrMeta').textContent = `${addr.length} records`;
+      document.getElementById('addrValidated').textContent = addr.length;
+      document.getElementById('addrDup').textContent = addr.filter(r=>r.duplicate_address_found).length;
+      document.getElementById('addrAvg').textContent = addr.length ? avg(addr, r=>r.risk_score).toFixed(1) : '–';
+      const fc={}; addr.forEach(r => (r.flags||[]).forEach(f => fc[f]=(fc[f]||0)+1));
+      const tf = Object.entries(fc).sort((a,b)=>b[1]-a[1])[0];
+      document.getElementById('addrTop').textContent = tf ? tf[0] : '–';
+      const byClass = groupBy(addr,'classification');
+      makeDoughnut('addressClassChart', Object.keys(byClass), Object.keys(byClass).map(k => byClass[k].length), 'Address Classification');
+      const highRisk = addr.filter(r => typeof r.risk_score === 'number' && r.risk_score >= 80).length;
+      document.getElementById('addrHighRiskPct').textContent = pct(highRisk, addr.length) + '%';
+
+      /* ---- AML ---- */
+      const aml = STATE.AML_Agent;
+      document.getElementById('amlMeta').textContent = `${aml.length} checks`;
+      const pass = aml.filter(r=>r.doc_authenticity==='VALID').length;
+      document.getElementById('amlPass').textContent = pct(pass, aml.length) + '%';
+      document.getElementById('amlDup').textContent = aml.filter(r=>r.duplicate_card_check).length;
+      document.getElementById('amlMorph').textContent = aml.filter(r=>r.morphed_image_check).length;
+      document.getElementById('amlWrong').textContent = aml.filter(r=>r.wrong_address).length;
+      makeBar('amlChart', ['VALID','SUSPECT'], [pass, aml.length-pass]);
+
+      /* ---- KYC ---- */
+      const kyc = STATE.KYC_Address_Agent;
+      document.getElementById('kycMeta').textContent = `${kyc.length} validations`;
+      const iso = kyc.filter(r=>r.iso_compliant).length;
+      const pc = kyc.filter(r=>r.postcode_valid).length;
+      const hr = kyc.filter(r=>r.high_risk).length;
+      document.getElementById('kycISO').textContent = pct(iso, kyc.length) + '%';
+      document.getElementById('kycPost').textContent = pct(pc, kyc.length) + '%';
+      document.getElementById('kycHigh').textContent = hr;
+      makeDoughnut('kycChart', ['ISO','Non-ISO'], [iso, kyc.length-iso], null);
+
+      /* ---- Data Validation (agent card metrics + titled pie) ---- */
+      const dv = STATE.DataValidation_Agent;
+      document.getElementById('dvMeta').textContent = `${dv.length} datasets`;
+
+      // Pass / Fail %
+      const dvPassCount = dv.filter(r => r.ok === true).length;
+      const dvFailCount = dv.length - dvPassCount;
+      document.getElementById('dvPass').textContent = pct(dvPassCount, dv.length) + '%';
+      document.getElementById('dvFail').textContent = pct(dvFailCount, dv.length) + '%';
+
+      // Failure categories totals (for chart only)
+      const totSchema = sum(dv, r => (r.counts && typeof r.counts.schema_issues === 'number') ? r.counts.schema_issues : 0);
+      const totNull   = sum(dv, r => (r.counts && typeof r.counts.null_issues === 'number') ? r.counts.null_issues : 0);
+      const totTs     = sum(dv, r => (r.counts && typeof r.counts.timestamp_issues === 'number') ? r.counts.timestamp_issues : 0);
+      makeDoughnut('dvChart', ['Schema','Null','Timestamp'], [totSchema, totNull, totTs], 'Failure Categories');
+
+      // Avg issues per failed record (non-redundant)
+      const failedRecs = dv.filter(r => r.ok === false);
+      const totIssuesFailed = sum(failedRecs, r =>
+        (r.counts && typeof r.counts.total === 'number')
+          ? r.counts.total
+          : ((r.counts ? (r.counts.schema_issues||0)+(r.counts.null_issues||0)+(r.counts.timestamp_issues||0) : 0))
+      );
+      document.getElementById('dvAvgPerFail').textContent = dvFailCount ? (totIssuesFailed / dvFailCount).toFixed(1) : '–';
+
+      // Multi-category fails % (records with >=2 issue types among schema/null/timestamp)
+      const multiCatFailCount = failedRecs.filter(r => {
+        const c = r.counts || {};
+        const types = (c.schema_issues>0) + (c.null_issues>0) + (c.timestamp_issues>0);
+        return types >= 2;
+      }).length;
+      document.getElementById('dvMultiCatPct').textContent = dvFailCount ? pct(multiCatFailCount, dvFailCount) + '%' : '–';
+
+      /* ---- Dormant ---- */
+      const d = STATE.DormantAccount_Agent;
+      document.getElementById('dormMeta').textContent = `${d.length} accounts`;
+      const actions = groupBy(d, 'remediation_action');
+      document.getElementById('dormContact').textContent = (actions['Contact']||[]).length;
+      document.getElementById('dormClose').textContent   = (actions['Close']||[]).length;
+      document.getElementById('dormInvestigate').textContent = (actions['Investigate']||[]).length;
+      document.getElementById('dormExt').textContent = d.filter(r=>r.external_match_found).length;
+      const dormLbl = Object.keys(actions); makeBar('dormChart', dormLbl, dormLbl.map(k => actions[k].length));
+
+      /* ---- Document Parsing ---- */
+      const p2 = STATE.DocumentParsing_Agent;
+      document.getElementById('parseMeta').textContent = `${p2.length} documents`;
+      const parsed2 = p2.filter(r=>r.parsed).length, unp2 = p2.filter(r=>r.parsed===false).length;
+      document.getElementById('parseParsed').textContent = parsed2;
+      document.getElementById('parseUnparsed').textContent = unp2;
+      document.getElementById('parseAvg').textContent = p2.length ? avg(p2, r=>r.fields_extracted_count).toFixed(1) : '–';
+      const reasons = {}; p2.filter(r=>r.reason).forEach(r=>reasons[r.reason]=(reasons[r.reason]||0)+1);
+      const tr = Object.entries(reasons).sort((a,b)=>b[1]-a[1])[0];
+      document.getElementById('parseTop').textContent = tr ? tr[0] : '–';
+      const byType = groupBy(p2, 'document_type'); const typeLbl = Object.keys(byType);
+      makeBar('parseChart', typeLbl, typeLbl.map(k => byType[k].filter(x=>x.parsed).length));
+    }
+
+    /* 7) Export */
+    document.getElementById('exportCsv').addEventListener('click', ()=>{
+      const data = ALL(); if (!data.length) return alert('No data to export.');
+      const cols = new Set(); data.forEach(r=>Object.keys(r).forEach(k=>cols.add(k)));
+      const headers = Array.from(cols);
+      const rows = [headers.join(',')].concat(data.map(r => headers.map(h => JSON.stringify(r[h] ?? '')).join(',')));
+      const blob = new Blob([rows.join('\n')], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'agent_aggregations.csv'; a.click();
+      URL.revokeObjectURL(url);
+    });
+    document.getElementById('exportJson').addEventListener('click', ()=>{
+      const blob = new Blob([JSON.stringify(ALL(), null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'agent_merged.json'; a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    /* 8) Init */
+    loadAll();
+  </script>
+</body>
+</html>
