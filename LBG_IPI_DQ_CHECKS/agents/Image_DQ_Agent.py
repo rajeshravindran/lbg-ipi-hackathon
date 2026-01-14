@@ -15,8 +15,11 @@ load_dotenv()
 
 # --- 0. SETUP ---
 SCRIPT_DIR = Path(__file__).parent.resolve()
-DATA_DIR = SCRIPT_DIR / "data"
+DATA_DIR = SCRIPT_DIR / "Data"
 USER_DATA_PATH = DATA_DIR / "user_input_data.json" # User Input data for DQ
+IMG_DATA_PATH = DATA_DIR / "images"
+
+print (f"{USER_DATA_PATH}\n{IMG_DATA_PATH}")
 
 # --- 1. SCHEMAS ---
 class IDDetails(BaseModel):
@@ -117,24 +120,6 @@ id_extractor_agent = LlmAgent(
     before_model_callback=inject_id_image
 )
 
-# Agent 2: The DQ Validator
-id_dq_agent = LlmAgent(
-    name='id_dq_validator_agent',
-    model='gemini-2.5-flash',
-    instruction="""Compare 'Extracted Data' vs 'Reference Data'.
-    1. Check if full_name and id_number are logically the same (ignore case/minor formatting).
-    2. If they match, DQ_result='PASS'. Otherwise 'FAIL'.
-    3. Provide a clear DQ_reason if they mismatch.
-    4. Return ONLY the requested JSON schema as per below structure.
-        id_doc_name: str
-        DQ_result: str  # "PASS" or "FAIL"
-        DQ_reason: str | None = None
-    """,
-    #output_schema=DQResult,
-    before_model_callback=inject_id_image
-)
-
-# --- 4. EXECUTION LOOP ---
 async def main():
     # 1. Initialize result list early to prevent UnboundLocalError
     all_results = []
@@ -150,10 +135,10 @@ async def main():
         extensions = ("*.jpg", "*.jpeg", "*.png")
         image_files = []
         for ext in extensions:
-            image_files.extend(DATA_DIR.glob(ext))
+            image_files.extend(IMG_DATA_PATH.glob(ext))
 
         if not image_files:
-            print(f"No images found in {DATA_DIR}")
+            print(f"No images found in {IMG_DATA_PATH}")
             return
 
         print(f"📂 Found {len(image_files)} images. Starting processing...")
@@ -231,7 +216,7 @@ async def main():
                     print(f"✅ DQ: {extracted_data.get('DQ_result', 'SKIPPED')}")
                     all_results.append(extracted_data)
                    
-                    output_file = DATA_DIR / f"{image_path.stem}_data.json"
+                    output_file = f"{image_path.stem}_data.json"
                     with open(output_file, 'w') as f:
                         json.dump(extracted_data, f, indent=4)
             else:
@@ -273,6 +258,23 @@ async def main():
 
     except Exception as e:
         print(f"❌ Batch Error: {e}")
+
+# Agent 2: The DQ Validator
+id_dq_agent = LlmAgent(
+    name='id_dq_validator_agent',
+    model='gemini-2.5-flash',
+    instruction="""Compare 'Extracted Data' vs 'Reference Data'.
+    1. Check if full_name and id_number are logically the same (ignore case/minor formatting).
+    2. If they match, DQ_result='PASS'. Otherwise 'FAIL'.
+    3. Provide a clear DQ_reason if they mismatch.
+    4. Return ONLY the requested JSON schema as per below structure.
+        id_doc_name: str
+        DQ_result: str  # "PASS" or "FAIL"
+        DQ_reason: str | None = None
+    """,
+    #output_schema=DQResult,
+    before_model_callback=inject_id_image
+)
        
 if __name__ == "__main__":
     asyncio.run(main())
