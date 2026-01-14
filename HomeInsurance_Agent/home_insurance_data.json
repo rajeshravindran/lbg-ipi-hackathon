@@ -1,0 +1,272 @@
+[
+    {
+        "policy_number": "H-99887766",
+        "postcode": "OX1 2JD",
+        "full_name": "Alice Thompson",
+        "dob": "1985-04-12",
+        "address": "12 High St, Oxford",
+        "renewal_date": "2025-02-15",
+        "current_premium": 450.0,
+        "renewal_premium": 495.0,
+        "discount_available": true,
+        "discounted_price": 460.0,
+        "status": "Renewed",
+        "cover_details": {
+            "buildings": 250000,
+            "contents": 50000,
+            "excess": 250
+        }
+    },
+    {
+        "policy_number": "H-11223344",
+        "postcode": "L1 8JQ",
+        "full_name": "Bob Smith",
+        "dob": "1979-09-23",
+        "address": "45 Penny Lane, Liverpool",
+        "renewal_date": "2024-03-01",
+        "current_premium": 320.0,
+        "renewal_premium": 340.0,
+        "discount_available": false,
+        "discounted_price": null,
+        "status": "Active",
+        "cover_details": {
+            "buildings": 150000,
+            "contents": 30000,
+            "excess": 100
+        }
+    },
+    {
+        "policy_number": "H-55667788",
+        "postcode": "E1 6AN",
+        "full_name": "Sarah Jenkins",
+        "dob": "1992-11-05",
+        "address": "88 Brick Lane, London",
+        "renewal_date": "2024-01-20",
+        "current_premium": 600.0,
+        "renewal_premium": 750.0,
+        "discount_available": true,
+        "discounted_price": 620.0,
+        "status": "Active",
+        "cover_details": {
+            "buildings": 500000,
+            "contents": 75000,
+            "excess": 500
+        }
+    },
+    {
+        "policy_number": "H-22334455",
+        "postcode": "M4 5DL",
+        "full_name": "David Miller",
+        "dob": "1965-02-14",
+        "address": "22 Northern Quarter, Manchester",
+        "renewal_date": "2024-04-10",
+        "current_premium": 280.0,
+        "renewal_premium": 290.0,
+        "discount_available": true,
+        "discounted_price": 280.0,
+        "status": "Pending Renewal",
+        "cover_details": {
+            "buildings": 200000,
+            "contents": 40000,
+            "excess": 150
+        }
+    },
+    {
+        "policy_number": "H-66778899",
+        "postcode": "B1 1BB",
+        "full_name": "Emma Wilson",
+        "dob": "1988-07-30",
+        "address": "5 Bullring, Birmingham",
+        "renewal_date": "2024-05-22",
+        "current_premium": 350.0,
+        "renewal_premium": 385.0,
+        "discount_available": false,
+        "discounted_price": null,
+        "status": "Active",
+        "cover_details": {
+            "buildings": 300000,
+            "contents": 50000,
+            "excess": 200
+        }
+    },
+    {
+        "policy_number": "H-33445566",
+        "postcode": "G1 1AA",
+        "full_name": "James Brown",
+        "dob": "1975-12-12",
+        "address": "10 Buchanan St, Glasgow",
+        "renewal_date": "2024-06-15",
+        "current_premium": 410.0,
+        "renewal_premium": 450.0,
+        "discount_available": true,
+        "discounted_price": 420.0,
+        "status": "Active",
+        "cover_details": {
+            "buildings": 280000,
+            "contents": 60000,
+            "excess": 250
+        }
+    },
+    {
+        "policy_number": "H-77889900",
+        "postcode": "CF10 1AA",
+        "full_name": "Linda Davis",
+        "dob": "1990-03-25",
+        "address": "3 Cardiff Bay, Cardiff",
+        "renewal_date": "2024-07-01",
+        "current_premium": 390.0,
+        "renewal_premium": 410.0,
+        "discount_available": true,
+        "discounted_price": 395.0,
+        "status": "Active",
+        "cover_details": {
+            "buildings": 320000,
+            "contents": 45000,
+            "excess": 300
+        }
+    },
+    {
+        "policy_number": "H-99001122",
+        "postcode": "BT1 5GS",
+        "full_name": "Michael Evans",
+        "dob": "1982-08-18",
+        "address": "7 City Hall, Belfast",
+        "renewal_date": "2024-08-12",
+        "current_premium": 330.0,
+        "renewal_premium": 350.0,
+        "discount_available": false,
+        "discounted_price": null,
+        "status": "Active",
+        "cover_details": {
+            "buildings": 220000,
+            "contents": 35000,
+            "excess": 150
+        }
+    },
+    {
+        "policy_number": "H-44556677",
+        "postcode": "LS1 1UR",
+        "full_name": "Olivia Moore",
+        "dob": "1995-01-30",
+        "address": "15 Trinity Leeds, Leeds",
+        "renewal_date": "2024-09-05",
+        "current_premium": 290.0,
+        "renewal_premium": 310.0,
+        "discount_available": true,
+        "discounted_price": 295.0,
+        "status": "Active",
+        "cover_details": {
+            "buildings": 180000,
+            "contents": 25000,
+            "excess": 100
+        }
+    },
+    {
+        "policy_number": "H-88990011",
+        "postcode": "EH1 1YZ",
+        "full_name": "William Taylor",
+        "dob": "1970-06-10",
+        "address": "20 Princes St, Edinburgh",
+        "renewal_date": "2024-10-20",
+        "current_premium": 520.0,
+        "renewal_premium": 580.0,
+        "discount_available": true,
+        "discounted_price": 530.0,
+        "status": "Active",
+        "cover_details": {
+            "buildings": 400000,
+            "contents": 80000,
+            "excess": 400
+        }
+    },
+    {
+        "policy_number": "H-12345678",
+        "postcode": "CB2 1QP",
+        "full_name": "Sophia White",
+        "dob": "1987-11-28",
+        "address": "1 King's Parade, Cambridge",
+        "renewal_date": "2024-02-28",
+        "current_premium": 470.0,
+        "renewal_premium": 500.0,
+        "discount_available": false,
+        "discounted_price": null,
+        "status": "Active",
+        "cover_details": {
+            "buildings": 350000,
+            "contents": 55000,
+            "excess": 350
+        }
+    },
+    {
+        "policy_number": "H-87654321",
+        "postcode": "OX2 6DP",
+        "full_name": "Lucas Harris",
+        "dob": "1998-04-05",
+        "address": "90 Woodstock Rd, Oxford",
+        "renewal_date": "2024-03-15",
+        "current_premium": 310.0,
+        "renewal_premium": 330.0,
+        "discount_available": true,
+        "discounted_price": 315.0,
+        "status": "Active",
+        "cover_details": {
+            "buildings": 200000,
+            "contents": 30000,
+            "excess": 200
+        }
+    },
+    {
+        "policy_number": "H-56473829",
+        "postcode": "SW1A 1AA",
+        "full_name": "Mia Clark",
+        "dob": "1980-09-15",
+        "address": "10 Downing St, London",
+        "renewal_date": "2024-01-10",
+        "current_premium": 800.0,
+        "renewal_premium": 950.0,
+        "discount_available": true,
+        "discounted_price": 850.0,
+        "status": "Pending Cancellation",
+        "cover_details": {
+            "buildings": 1000000,
+            "contents": 200000,
+            "excess": 1000
+        }
+    },
+    {
+        "policy_number": "H-19283746",
+        "postcode": "M1 1AE",
+        "full_name": "Benjamin Lewis",
+        "dob": "1978-02-02",
+        "address": "1 Piccadilly, Manchester",
+        "renewal_date": "2024-05-05",
+        "current_premium": 360.0,
+        "renewal_premium": 380.0,
+        "discount_available": false,
+        "discounted_price": null,
+        "status": "Active",
+        "cover_details": {
+            "buildings": 260000,
+            "contents": 40000,
+            "excess": 250
+        }
+    },
+    {
+        "policy_number": "H-91827364",
+        "postcode": "L3 4FP",
+        "full_name": "Charlotte Walker",
+        "dob": "1991-07-20",
+        "address": "Royal Albert Dock, Liverpool",
+        "renewal_date": "2024-06-30",
+        "current_premium": 400.0,
+        "renewal_premium": 420.0,
+        "discount_available": true,
+        "discounted_price": 400.0,
+        "status": "Active",
+        "cover_details": {
+            "buildings": 300000,
+            "contents": 50000,
+            "excess": 300
+        }
+    }
+]
