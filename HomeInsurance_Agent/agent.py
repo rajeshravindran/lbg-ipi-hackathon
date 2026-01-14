@@ -45,13 +45,14 @@ class HomeInsuranceSystem:
     def get_policy(self, policy_number):
         return next((r for r in self.db if r["policy_number"] == policy_number), None)
 
-def cancel_policy_in_db(self, policy_number):
-    record = self.get_policy(policy_number)
-    if record:
-        record["status"] = "Cancelled"
-        self.save_db()
-        return True
-    return False
+    def cancel_policy_in_db(self, policy_number):
+        """Finds the policy and changes its status to Cancelled."""
+        record = self.get_policy(policy_number)
+        if record:
+            record["status"] = "Cancelled"
+            self.save_db()  # Persist the change to the JSON file
+            return True
+        return False
 
 home_insurance = HomeInsuranceSystem(DATA_FILE)
 
@@ -95,16 +96,42 @@ def get_policy_details():
     return json.dumps(record, indent=2)
 
 def update_policy_cover(cover_type: str, new_limit: int):
-    """Updates a specific cover limit (e.g., 'building_cover')."""
+    """Updates a specific cover limit (e.g., 'building_cover' or 'buildings')."""
     if not active_policy_id: return "ERROR: Log in first."
     record = home_insurance.get_policy(active_policy_id)
-    # Map friendly names to JSON keys if necessary
-    key = cover_type.lower().replace(" ", "_")
+    
+    # 1. Standardize the input: lowercase and remove "cover" / "limit" / "details"
+    # This turns "building cover" or "buildings_cover" into just "building"
+    clean_input = cover_type.lower().replace("_", " ").replace("cover", "").strip()
+
+    # 2. Check for the key, handling the common 's' suffix issue
+    target_key = None
+    available_keys = record["cover_details"].keys() # e.g., ["buildings", "contents", "excess"]
+
+    for key in available_keys:
+        # Check if the clean input is inside the key (e.g., "building" in "buildings")
+        # or if the key is inside the clean input
+        if clean_input in key or key in clean_input:
+            target_key = key
+            break
+
+    if target_key:
+        record["cover_details"][target_key] = new_limit
+        home_insurance.save_db()
+        return f"SUCCESS: {target_key.capitalize()} updated to £{new_limit}."
+    
+    return f"ERROR: Could not find cover type '{cover_type}'. Known keys: {list(available_keys)}"
+    
+    # Get the correct key from the mapping, or fallback to the cleaned input
+    clean_input = cover_type.lower().strip().replace(" ", "_")
+    key = mapping.get(clean_input, clean_input)
+    
     if key in record["cover_details"]:
         record["cover_details"][key] = new_limit
         home_insurance.save_db()
-        return f"SUCCESS: {cover_type} updated to £{new_limit}."
-    return f"ERROR: Could not find cover type '{cover_type}'."
+        return f"SUCCESS: {key.capitalize()} cover updated to £{new_limit}."
+    
+    return f"ERROR: Could not find cover type '{cover_type}'. Available types: {list(record['cover_details'].keys())}"
 
 def renew_policy():
     """Sets policy status to Renewed and saves to JSON."""
@@ -115,14 +142,15 @@ def renew_policy():
     return f"SUCCESS: Policy {active_policy_id} is now Renewed."
 
 def cancel_policy():
-    """Sets the current active policy status to Cancelled."""
+    """Permanent cancellation of the active insurance policy."""
+    global active_policy_id
     if not active_policy_id: 
-        return "ERROR: Please log in first before attempting to cancel a policy."
+        return "ERROR: Please log in first."
     
     success = home_insurance.cancel_policy_in_db(active_policy_id)
     if success:
-        return f"SUCCESS: Policy {active_policy_id} has been cancelled."
-    return "ERROR: Policy not found."
+        return f"SUCCESS: Policy {active_policy_id} is now Cancelled."
+    return "ERROR: Policy could not be found in the database."
 
 def download_policy_summary():
     """Generates a text file summary of the policy."""
@@ -137,12 +165,18 @@ root_agent = LlmAgent(
     name='home_insurance_agent',
     model='gemini-2.5-flash',
     instruction="""You are the Home Insurance Assistant.
-    
-    1. **MANDATORY LOGIN**: Before helping, you must authenticate.
-    2. **HOW TO AUTH**: When a user gives you details (like H-99887766 and OX12JD), 
+    1. Greet users politely and offer help to manage with their home insurance policies.
+    2. To gain access to your policy, please provide your Policy Number along with your Postcode, 
+       or alternatively, your Full Name, Postcode and Date of Birth.
+    3. **HOW TO AUTH**: When a user gives you details (like H-99887766 and OX12JD), 
        pass the ENTIRE string they said into the `login_user` tool as the 'search_query'.
-    3. **CONFIRMATION**: Once logged in, you can: Check Renewal, Change Cover, 
+    4. **CONFIRMATION**: Once logged in, you can: Check Renewal, Change Cover, 
        Download Summary, or CANCEL a policy if requested.
+    5. If a user wish to cancel their policy, ask the reason for cancellation first & offer them discounted price if available.
+    6. If still he wants to cancel then message that Cancelling a policy is permanent and Confirm with the user before proceeding.
+    7. If the user updates any cover limits, try to calculate the preimum changes based on current cover & premium and new cover limits. Provide this to confirm and then update
+    8. If the user asks for anything outside home insurance, politely inform them you can't help with that.
+    9. Always provide clear, concise responses.
     """,
     # ADD cancel_policy TO THE LIST BELOW
     tools=[login_user, get_policy_details, update_policy_cover, 
