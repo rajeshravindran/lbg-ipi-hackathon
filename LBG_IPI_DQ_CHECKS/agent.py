@@ -19,8 +19,8 @@ root_agent = SequentialAgent(
     sub_agents=[
         #id_extractor_agent, 
         #address_validator_dq, 
-        #parse_document_agent, 
-        data_contract_agent, 
+        parse_document_agent, 
+        #data_contract_agent, 
         #document_pensions_agent
         ]
 )

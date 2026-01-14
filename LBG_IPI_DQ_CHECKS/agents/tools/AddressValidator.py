@@ -155,128 +155,128 @@ class AddressAgent:
         )
 
     from google.cloud import bigquery
-import re
-from postal.parser import parse_address
+    import re
+    from postal.parser import parse_address
 
-# Assuming CustomerAddressDQ is already imported/defined
+    # Assuming CustomerAddressDQ is already imported/defined
 
-def validate_bigquery(self, user_input: str) -> CustomerAddressDQ:
-    # --- 1. SETUP BIGQUERY CLIENT ---
-    # These should ideally be defined in your class __init__
-    project_id = "dbs-data-ai-ai-core"
-    dataset_id = "lbg_ipi_digitalwallet"
-    table_id = f"{project_id}.{dataset_id}.os_data"
-    client = bigquery.Client(project=project_id)
+    def validate_bigquery(self, user_input: str) -> CustomerAddressDQ:
+        # --- 1. SETUP BIGQUERY CLIENT ---
+        # These should ideally be defined in your class __init__
+        project_id = "dbs-data-ai-ai-core"
+        dataset_id = "lbg_ipi_digitalwallet"
+        table_id = f"{project_id}.{dataset_id}.os_data"
+        client = bigquery.Client(project=project_id)
 
-    # --- 2. PARSE WITH LIBPOSTAL ---
-    parsed = parse_address(user_input)
-    addr = {label: value.upper() for value, label in parsed}
-    
-    user_area_context = addr.get('city') or addr.get('suburb') or addr.get('state_district')
-    
-    geo_labels = ['road', 'suburb', 'city', 'neighborhood', 'village', 'hamlet', 'state_district']
-    search_components = [val.upper() for val, label in parsed if label in geo_labels]
-    search_term = " ".join(search_components).strip()
-
-    if not search_term:
-        search_term = user_input.split(',')[0].strip().upper() if "," in user_input else user_input.split()[0].strip().upper()
-
-    postcode_parts = [value.upper() for value, label in parsed if label == 'postcode']
-    postcode = " ".join(postcode_parts).strip()
-    input_district = postcode.split()[0] if (postcode and len(postcode.split()) > 0) else None
-    
-    # --- 3. BIGQUERY SEARCH ---
-    db_match = None
-    if search_term:
-        # We use Parameterized Queries for security and performance
-        params = [bigquery.ScalarQueryParameter("search_term", "STRING", search_term)]
+        # --- 2. PARSE WITH LIBPOSTAL ---
+        parsed = parse_address(user_input)
+        addr = {label: value.upper() for value, label in parsed}
         
-        if input_district:
-            # Query 1: Refined search with Postcode District
-            query = f"""
-                SELECT * FROM `{table_id}` 
-                WHERE NAME1 LIKE @search_term_like 
-                AND POSTCODE_DISTRICT LIKE @district_like 
-                LIMIT 1
-            """
-            job_config = bigquery.QueryJobConfig(
-                query_parameters=[
-                    bigquery.ScalarQueryParameter("search_term_like", "STRING", f"{search_term}%"),
-                    bigquery.ScalarQueryParameter("district_like", "STRING", f"{input_district}%")
-                ]
-            )
-            query_job = client.query(query, job_config=job_config)
-            rows = list(query_job.result())
-            if rows:
-                db_match = rows[0]
-
-        if not db_match:
-            # Query 2: Fallback to Name only
-            query = f"SELECT * FROM `{table_id}` WHERE NAME1 = @search_term LIMIT 1"
-            job_config = bigquery.QueryJobConfig(query_parameters=params)
-            query_job = client.query(query, job_config=job_config)
-            rows = list(query_job.result())
-            if rows:
-                db_match = rows[0]
-
-    # --- 4. VALIDATION LOGIC & RISK SCORING ---
-    is_valid = db_match is not None
-    risk_flags = []
-    risk_score = 0
-    confidence_level = "LOW"
-    classification = "UNKNOWN"
-    
-    if is_valid:
-        residential_types = ['Postcode', 'Named Road', 'Hamlet', 'Village', 'Other Settlement']
-        classification = "RESIDENTIAL" if db_match['LOCAL_TYPE'] in residential_types else "BUSINESS"
+        user_area_context = addr.get('city') or addr.get('suburb') or addr.get('state_district')
         
-        db_city = (db_match['POPULATED_PLACE'] or "").upper()
-        db_borough = (db_match['DISTRICT_BOROUGH'] or "").upper()
-        if user_area_context and not any(loc == user_area_context for loc in [db_city, db_borough] if loc):
-            risk_flags.append("GEOGRAPHIC_AREA_MISMATCH")
-            risk_score += 40
+        geo_labels = ['road', 'suburb', 'city', 'neighborhood', 'village', 'hamlet', 'state_district']
+        search_components = [val.upper() for val, label in parsed if label in geo_labels]
+        search_term = " ".join(search_components).strip()
 
-        if re.match(r"^[A-Z]{1,2}[0-9][A-Z0-9]? [0-9][A-Z]{2}$", postcode):
-            confidence_level = "HIGH"
-        elif input_district or (not postcode and db_match['POSTCODE_DISTRICT']):
-            risk_flags.append("PARTIAL_POSTCODE_DISTRICT")
-            risk_score += 10
-            confidence_level = "MEDIUM"
+        if not search_term:
+            search_term = user_input.split(',')[0].strip().upper() if "," in user_input else user_input.split()[0].strip().upper()
+
+        postcode_parts = [value.upper() for value, label in parsed if label == 'postcode']
+        postcode = " ".join(postcode_parts).strip()
+        input_district = postcode.split()[0] if (postcode and len(postcode.split()) > 0) else None
+        
+        # --- 3. BIGQUERY SEARCH ---
+        db_match = None
+        if search_term:
+            # We use Parameterized Queries for security and performance
+            params = [bigquery.ScalarQueryParameter("search_term", "STRING", search_term)]
+            
+            if input_district:
+                # Query 1: Refined search with Postcode District
+                query = f"""
+                    SELECT * FROM `{table_id}` 
+                    WHERE NAME1 LIKE @search_term_like 
+                    AND POSTCODE_DISTRICT LIKE @district_like 
+                    LIMIT 1
+                """
+                job_config = bigquery.QueryJobConfig(
+                    query_parameters=[
+                        bigquery.ScalarQueryParameter("search_term_like", "STRING", f"{search_term}%"),
+                        bigquery.ScalarQueryParameter("district_like", "STRING", f"{input_district}%")
+                    ]
+                )
+                query_job = client.query(query, job_config=job_config)
+                rows = list(query_job.result())
+                if rows:
+                    db_match = rows[0]
+
+            if not db_match:
+                # Query 2: Fallback to Name only
+                query = f"SELECT * FROM `{table_id}` WHERE NAME1 = @search_term LIMIT 1"
+                job_config = bigquery.QueryJobConfig(query_parameters=params)
+                query_job = client.query(query, job_config=job_config)
+                rows = list(query_job.result())
+                if rows:
+                    db_match = rows[0]
+
+        # --- 4. VALIDATION LOGIC & RISK SCORING ---
+        is_valid = db_match is not None
+        risk_flags = []
+        risk_score = 0
+        confidence_level = "LOW"
+        classification = "UNKNOWN"
+        
+        if is_valid:
+            residential_types = ['Postcode', 'Named Road', 'Hamlet', 'Village', 'Other Settlement']
+            classification = "RESIDENTIAL" if db_match['LOCAL_TYPE'] in residential_types else "BUSINESS"
+            
+            db_city = (db_match['POPULATED_PLACE'] or "").upper()
+            db_borough = (db_match['DISTRICT_BOROUGH'] or "").upper()
+            if user_area_context and not any(loc == user_area_context for loc in [db_city, db_borough] if loc):
+                risk_flags.append("GEOGRAPHIC_AREA_MISMATCH")
+                risk_score += 40
+
+            if re.match(r"^[A-Z]{1,2}[0-9][A-Z0-9]? [0-9][A-Z]{2}$", postcode):
+                confidence_level = "HIGH"
+            elif input_district or (not postcode and db_match['POSTCODE_DISTRICT']):
+                risk_flags.append("PARTIAL_POSTCODE_DISTRICT")
+                risk_score += 10
+                confidence_level = "MEDIUM"
+            else:
+                risk_flags.append("MISSING_OR_INVALID_POSTCODE")
+                risk_score += 30
         else:
-            risk_flags.append("MISSING_OR_INVALID_POSTCODE")
-            risk_score += 30
-    else:
-        risk_flags.append("ADDRESS_NOT_IN_DATABASE")
-        risk_score = 90
+            risk_flags.append("ADDRESS_NOT_IN_DATABASE")
+            risk_score = 90
 
-    # --- 5. FINAL CONSTRUCTION ---
-    house_no = addr.get('house_number', '').strip()
-    final_road = db_match['NAME1'] if is_valid else search_term
-    final_pc = postcode if postcode else (db_match['POSTCODE_DISTRICT'] if is_valid else "UNKNOWN")
-    full_std_addr = f"{house_no} {final_road}, {final_pc}".strip(", ").upper()
+        # --- 5. FINAL CONSTRUCTION ---
+        house_no = addr.get('house_number', '').strip()
+        final_road = db_match['NAME1'] if is_valid else search_term
+        final_pc = postcode if postcode else (db_match['POSTCODE_DISTRICT'] if is_valid else "UNKNOWN")
+        full_std_addr = f"{house_no} {final_road}, {final_pc}".strip(", ").upper()
 
-    is_duplicate = self._is_duplicate(full_std_addr)
-    if is_duplicate:
-        risk_flags.append('DUPLICATE ADDRESSES TRACKED')
-        risk_score = min(risk_score + 30, 100)
+        is_duplicate = self._is_duplicate(full_std_addr)
+        if is_duplicate:
+            risk_flags.append('DUPLICATE ADDRESSES TRACKED')
+            risk_score = min(risk_score + 30, 100)
 
-    return CustomerAddressDQ(
-        is_valid=is_valid,
-        standardized_address=full_std_addr,
-        classification=classification,
-        is_duplicate=is_duplicate,
-        populated_place=db_match['POPULATED_PLACE'] if is_valid else None,
-        district_borough=db_match['DISTRICT_BOROUGH'] if is_valid else None,
-        county=db_match['COUNTY_UNITARY'] if is_valid else None,
-        risk_score=min(risk_score, 100),
-        risk_flags=risk_flags,
-        confidence_level=confidence_level,
-        provider_metadata={
-            "os_id": db_match['ID'] if is_valid else None,
-            "local_type": db_match['LOCAL_TYPE'] if is_valid else "N/A",
-            "country": db_match['COUNTRY'] if is_valid else "UK"
-        }
-    )
+        return CustomerAddressDQ(
+            is_valid=is_valid,
+            standardized_address=full_std_addr,
+            classification=classification,
+            is_duplicate=is_duplicate,
+            populated_place=db_match['POPULATED_PLACE'] if is_valid else None,
+            district_borough=db_match['DISTRICT_BOROUGH'] if is_valid else None,
+            county=db_match['COUNTY_UNITARY'] if is_valid else None,
+            risk_score=min(risk_score, 100),
+            risk_flags=risk_flags,
+            confidence_level=confidence_level,
+            provider_metadata={
+                "os_id": db_match['ID'] if is_valid else None,
+                "local_type": db_match['LOCAL_TYPE'] if is_valid else "N/A",
+                "country": db_match['COUNTRY'] if is_valid else "UK"
+            }
+        )
 
 if __name__ == "__main__":
     # 1. Initialize the agent
@@ -287,7 +287,7 @@ if __name__ == "__main__":
 
     test_addresses = [
         "Upper Thurnham, LA2",  
-        "Woodend, WF10",        
+        "Woodend, GU22",        
         "Darrington, WF8",         
         "York Road , GU22",            
         "Dragon Breath Lane, ZZ9 9ZZ", #invalid
@@ -295,6 +295,6 @@ if __name__ == "__main__":
 
     for addr in test_addresses:
         print(f"Validating: {addr}")
-        result = agent.validate(addr)
+        result = agent.validate_bigquery(addr)
         print("\n--- Result ---")
         print(result.model_dump_json(indent=2))

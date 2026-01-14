@@ -7,6 +7,10 @@ import glob
 import os
 from dotenv import load_dotenv
 import io
+import pandas as pd
+import pandas_gbq
+import glob
+
 
 load_dotenv(override=True)
 
@@ -23,74 +27,42 @@ def initialize_bigquery_from_local(header_path, data_folder_path):
     # 1. Setup Configuration
     project_id = "dbs-data-ai-ai-core"
     dataset_id = "lbg_ipi_digitalwallet"
-    table_name = "os_data"
-    table_id = f"{project_id}.{dataset_id}.{table_name}"
-    
-    client = bigquery.Client(project=project_id)
+    table_id = f"{dataset_id}.os_data"
 
-    # 2. ENSURE DATASET EXISTS (The Fix)
-    try:
-        client.get_dataset(dataset_id)
-        print(f"✅ Dataset {dataset_id} found.")
-    except NotFound:
-        print(f"Empty dataset {dataset_id} not found. Creating it now...")
-        dataset = bigquery.Dataset(f"{project_id}.{dataset_id}")
-        dataset.location = "EU"  # Ensure this matches your data residency requirements
-        client.create_dataset(dataset, timeout=30)
-        print(f"✅ Dataset {dataset_id} created successfully.")
+    headerpath = header_path
+    csv_files = glob.glob(f"{data_folder_path}/*.csv")
 
-    # 3. Handle Header and Columns
-    header_df = pd.read_csv(header_path)
-    column_names = header_df.columns.tolist()
-    
     cols_to_keep = [
         'ID', 'NAME1', 'LOCAL_TYPE', 'POSTCODE_DISTRICT', 
         'POPULATED_PLACE', 'DISTRICT_BOROUGH', 'COUNTY_UNITARY', 'COUNTRY'
     ]
     valid_types = ['Postcode', 'Named Road', 'Village', 'Hamlet']
 
-    # 2. DELETE THE TABLE IF IT ALREADY EXISTS (To fix the partitioning mismatch)
-    client.delete_table(table_id, not_found_ok=True)
-    print(f"🗑️ Old table deleted (to refresh clustering spec).")
+    # Load headers once
+    header_df = pd.read_csv(headerpath)
+    column_names = header_df.columns.tolist()
 
-    # 4. Configure Load Job
-    # Using WRITE_TRUNCATE to clear any old data on the first run
-    job_config = bigquery.LoadJobConfig(
-        source_format=bigquery.SourceFormat.CSV,
-        write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,
-        clustering_fields=["NAME1"], # Optimizes for address searches
-        schema=[bigquery.SchemaField(col, "STRING") for col in cols_to_keep]
-    )
+    # List to store dataframes for efficient merging
+    df_list = []
 
-    csv_files = glob.glob(os.path.join(data_folder_path, "*.csv"))
-    
-    for i, file_path in enumerate(csv_files):
-        if "header" in file_path.lower(): continue
+    for i, file in enumerate(csv_files):
+        print(f"Processing {i}: {file}")
+        # Read only necessary columns to save memory
+        df = pd.read_csv(file, names=column_names, header=None, low_memory=False)
         
-        print(f"🚀 Processing: {os.path.basename(file_path)}")
-        
-        # Read and filter locally
-        df = pd.read_csv(file_path, names=column_names, header=None, low_memory=False)
+        # Filter rows and select columns
         clean_df = df[df['LOCAL_TYPE'].isin(valid_types)][cols_to_keep]
+        df_list.append(clean_df)
 
-        # Convert to CSV buffer
-        buffer = io.StringIO()
-        clean_df.to_csv(buffer, index=False)
-        buffer.seek(0)
+    # Concatenate all at once
+    final_df = pd.concat(df_list, ignore_index=True)
 
-        # Load to BigQuery
-        load_job = client.load_table_from_file(
-            io.BytesIO(buffer.getvalue().encode()), 
-            table_id, 
-            job_config=job_config
-        )
-        load_job.result() # Wait for completion
-        
-        # Switch to APPEND and skip headers for subsequent files
-        job_config.write_disposition = bigquery.WriteDisposition.WRITE_APPEND
-        job_config.skip_leading_rows = 1 
+    print(f"Total rows to upload: {len(final_df)}")
 
-    print(f"\n✨ Success! Data fully uploaded to {table_id}")
+    # Upload to BigQuery
+    # Note: 'replace' will overwrite the table every time the script runs. 
+    # Use 'append' if you are processing files in batches over time.
+    pandas_gbq.to_gbq(final_df, table_id, project_id=project_id, if_exists='replace')
 
 def initialize_database(header_path, data_folder_path, db_path='uk_validation.db'):
     header_df = pd.read_csv(header_path)
@@ -224,7 +196,7 @@ if __name__ == '__main__':
     db_path ="/Users/mia/myprojects/uv_projects/lbg-ipi-hackathon/AddressValidator_Agent/Data/uk_validation.db"
 
     # Initialize once
-    #initialize_database(header_path, data_path, db_path)
+    #initialize_database(header_path, data_path)
     initialize_bigquery_from_local(header_path, data_path)
     # Test Validation
     test_address = "Melby Road, ZE2 9PL"

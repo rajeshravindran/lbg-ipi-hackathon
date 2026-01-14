@@ -55,7 +55,8 @@ def validate_and_unify(extraction_state: dict) -> dict:
     else:
         try:
             validator = AddressAgent(db_path="Data/uk_validation.db")
-            address_profile = validator.validate(str(address_to_verify))
+            #address_profile = validator.validate(str(address_to_verify))
+            address_profile = validator.validate_bigquery(str(address_to_verify))
         except Exception as e:
             address_profile = address_not_found_response(raw_input=str(address_to_verify))
 
