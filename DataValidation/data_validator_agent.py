@@ -1,7 +1,7 @@
 
 #!/usr/bin/env python3
 """
-ADK Data Validator Agent — Batch-first workflow with Gemini explanations (chat display enabled)
+ADK Data Validator Agent — Batch-first workflow with Gemini explanations (Markdown chat output)
 -----------------------------------------------------------------------------------------------
 Validates ALL wallet/customer JSON files under ./data/input against a JSON Schema,
 enforces null policy, and checks pipeline timestamps. For each input, calls gemini-2.5-flash to generate:
@@ -9,7 +9,7 @@ enforces null policy, and checks pipeline timestamps. For each input, calls gemi
   - Structured remediation plan (JSON)
 
 Writes one uniform output JSON per input to ./data/output AND
-also posts each output JSON in the ADK web chat.
+also posts a Markdown summary per file in the ADK web chat.
 
 Requires: google-adk, jsonschema
 """
@@ -36,7 +36,7 @@ from google.adk.events.event_actions import EventActions  # state updates / cont
 
 # --- LLM + Content types ---
 from google.adk.models.google_llm import Gemini
-from google.genai import types  # <-- IMPORTANT: for Content & Part (chat-visible text)
+from google.genai import types  # Content/Part for chat-visible Markdown text
 
 # =========================
 # Project paths
@@ -67,7 +67,7 @@ DEFAULT_TOLERANCES: Dict[str, float] = {
 NULL_EQUIVALENTS = {"", " ", "N/A", "UNKNOWN", None}
 
 # =========================
-# Helpers (unchanged)
+# Helpers
 # =========================
 def load_json_local(path: Path) -> Dict[str, Any]:
     with open(path, "r", encoding="utf-8") as f:
@@ -232,7 +232,7 @@ def check_pipeline_timestamps(
     return issues, metrics
 
 # =========================
-# Output doc schema (unchanged)
+# Output doc schema
 # =========================
 OUTPUT_DOC_SCHEMA_ID = "adk.wallet.validation.output.v1"
 
@@ -261,7 +261,7 @@ def _build_output_doc(
     }
 
 # =========================
-# Gemini helper (unchanged logic)
+# Gemini helper (same behavior, better summary)
 # =========================
 _gemini_model = Gemini(model="gemini-2.5-flash", use_interactions_api=True)
 
@@ -350,11 +350,96 @@ def invoke_gemini_explanation(validation_summary: Dict[str, Any]) -> Tuple[str, 
     return summary_text, structured
 
 # =========================
-# Batch Validation Agent (NOW posts to chat via Event.content.parts)
+# Markdown formatting helper (NEW)
+# =========================
+def _to_markdown(out_doc: Dict[str, Any]) -> str:
+    """
+    Convert the output JSON document into a concise Markdown card
+    for non-technical viewers in the ADK web chat.
+    """
+    status_emoji = "✅" if out_doc.get("ok") else "❌"
+    title = f"{status_emoji} **Validation Result** — `{out_doc.get('record_hint', '<unknown>')}`"
+    path_line = f"**Input file:** `{out_doc.get('input_file')}`"
+    counts = out_doc.get("counts", {})
+    counts_md = (
+        f"- Schema issues: **{counts.get('schema_issues', 0)}**\n"
+        f"- Null issues: **{counts.get('null_issues', 0)}**\n"
+        f"- Timestamp issues: **{counts.get('timestamp_issues', 0)}**\n"
+        f"- Total issues: **{counts.get('total', 0)}**"
+    )
+
+    # Top issues list (limit to 5 for readability)
+    issues = out_doc.get("issues", []) or []
+    if issues:
+        issue_lines = []
+        for i in issues[:5]:
+            cat = i.get("category", "issue")
+            field = i.get("field_path", "")
+            sev = i.get("severity", "")
+            detail = i.get("detail", "")
+            # detail can be dict or str
+            if isinstance(detail, dict):
+                detail_str = "; ".join(f"{k}: {v}" for k, v in detail.items())
+            else:
+                detail_str = str(detail)
+            issue_lines.append(f"- **{cat}** ({sev}) — `{field}`: {detail_str}")
+        issues_md = "\n".join(issue_lines)
+    else:
+        issues_md = "- No issues found."
+
+    # LLM summary text
+    llm = out_doc.get("llm", {})
+    llm_summary = llm.get("summary_text", "") or "Summary not available."
+    llm_summary_md = llm_summary.strip()
+
+    # LLM structured remediation
+    llm_struct = llm.get("structured", {}) or {}
+    plan = llm_struct.get("remediation_plan", []) or []
+    if plan:
+        plan_lines = []
+        for step in plan[:5]:
+            pr = step.get("priority", "medium")
+            st = step.get("step", "")
+            ex = step.get("example", "")
+            bullet = f"- **{pr.capitalize()}** — {st}"
+            if ex:
+                bullet += f" _(e.g., {ex})_"
+            plan_lines.append(bullet)
+        plan_md = "\n".join(plan_lines)
+    else:
+        plan_md = "- Remediation steps will be provided when applicable."
+
+    # Timestamp metrics (brief)
+    tm = out_doc.get("timestamp_metrics", {}) or {}
+    lags = tm.get("lags_sec", {}) or {}
+    availability = tm.get("availability", {}) or {}
+    lag_md = (
+        f"- Event → Publish: **{lags.get('event_to_publish', '—')}s**\n"
+        f"- Publish → Validate: **{lags.get('publish_to_validate', '—')}s**\n"
+        f"- Validate → Commit: **{lags.get('validate_to_commit', '—')}s**"
+    )
+    avail_md = ", ".join(k for k, v in availability.items() if v) or "—"
+
+    md = (
+        f"{title}\n\n"
+        f"{path_line}\n\n"
+        f"### Status\n"
+        f"- Overall: **{'PASS' if out_doc.get('ok') else 'FAIL'}**\n\n"
+        f"### Issue Counts\n{counts_md}\n\n"
+        f"### Top Findings\n{issues_md}\n\n"
+        f"### LLM Explanation\n{llm_summary_md}\n\n"
+        f"### Suggested Remediations\n{plan_md}\n\n"
+        f"### Timing Metrics\n{lag_md}\n\n"
+        f"**Timestamp availability:** {avail_md}\n"
+    )
+    return md
+
+# =========================
+# Batch Validation Agent (posts Markdown to chat)
 # =========================
 class BatchValidationAgent(BaseAgent):
     name: str = "batch_validation_runner"
-    description: str = "Validates all JSONs, explains via Gemini, writes outputs, and posts each output to chat."
+    description: str = "Validates all JSONs, explains via Gemini, writes outputs, and posts Markdown summaries to chat."
 
     async def _run_async_impl(self, ctx: InvocationContext) -> AsyncGenerator[Event, None]:
         state = ctx.session.state
@@ -362,10 +447,9 @@ class BatchValidationAgent(BaseAgent):
         # Path checks
         if not SCHEMA_PATH.is_file():
             msg = f"Schema file not found: {SCHEMA_PATH}"
-            # Show error in chat
             yield Event(
                 author=self.name,
-                content=types.Content(parts=[types.Part(text=msg)]),
+                content=types.Content(parts=[types.Part(text=f"**Error:** {msg}")]),
                 actions=EventActions(state_delta={"batch_summary": {"ok": False, "detail": msg}}, skip_summarization=True),
             )
             return
@@ -373,7 +457,7 @@ class BatchValidationAgent(BaseAgent):
             msg = f"Input directory not found: {INPUT_DIR}"
             yield Event(
                 author=self.name,
-                content=types.Content(parts=[types.Part(text=msg)]),
+                content=types.Content(parts=[types.Part(text=f"**Error:** {msg}")]),
                 actions=EventActions(state_delta={"batch_summary": {"ok": False, "detail": msg}}, skip_summarization=True),
             )
             return
@@ -387,7 +471,7 @@ class BatchValidationAgent(BaseAgent):
             msg = f"Failed to load schema: {e}"
             yield Event(
                 author=self.name,
-                content=types.Content(parts=[types.Part(text=msg)]),
+                content=types.Content(parts=[types.Part(text=f"**Error:** {msg}")]),
                 actions=EventActions(state_delta={"batch_summary": {"ok": False, "detail": msg}}, skip_summarization=True),
             )
             return
@@ -508,13 +592,12 @@ class BatchValidationAgent(BaseAgent):
             except Exception as write_exc:
                 per_file_status.append({"file": str(input_path), "output": str(out_path), "ok": False, "error": f"Failed to write output: {write_exc}"})
 
-            # === SHOW per-file output in ADK chat (use Content.parts[Text]) ===
-            pretty = json.dumps(out_doc, indent=2, ensure_ascii=False)
-            chat_text = f"Validation Output for `{input_path.name}` → `{out_path}`\n\n{pretty}"
+            # === SHOW per-file output in ADK chat as Markdown ===
+            markdown = _to_markdown(out_doc)
             yield Event(
                 author=self.name,
-                content=types.Content(parts=[types.Part(text=chat_text)]),
-                actions=EventActions(skip_summarization=True),  # prevent UI summarization
+                content=types.Content(parts=[types.Part(text=markdown)]),
+                actions=EventActions(skip_summarization=True),  # render our Markdown as-is
             )
 
         # Final batch summary (state + chat)
@@ -525,21 +608,23 @@ class BatchValidationAgent(BaseAgent):
             "files": per_file_status,
             "output_dir": str(OUTPUT_DIR),
         }
-        # Persist summary in state
         yield Event(
             author=self.name,
             actions=EventActions(state_delta={"batch_summary": batch_summary}, skip_summarization=True),
         )
-        # Also display in chat
-        summary_text = (
-            f"Batch Completed\n"
-            f"Processed: {total_processed} file(s)\n"
-            f"Output folder: {OUTPUT_DIR}\n"
-            f"Aggregate counts: {json.dumps(aggregate_counts)}\n"
+        summary_md = (
+            f"## Batch Completed\n"
+            f"- Processed: **{total_processed}** file(s)\n"
+            f"- Output folder: `{OUTPUT_DIR}`\n"
+            f"- Aggregate counts:\n"
+            f"  - Schema: **{aggregate_counts['schema_issues']}**\n"
+            f"  - Null: **{aggregate_counts['null_issues']}**\n"
+            f"  - Timestamp: **{aggregate_counts['timestamp_issues']}**\n"
+            f"  - Total: **{aggregate_counts['total']}**\n"
         )
         yield Event(
             author=self.name,
-            content=types.Content(parts=[types.Part(text=summary_text)]),
+            content=types.Content(parts=[types.Part(text=summary_md)]),
             actions=EventActions(skip_summarization=True),
         )
         return
@@ -549,7 +634,7 @@ class BatchValidationAgent(BaseAgent):
 # =========================
 root_agent = SequentialAgent(
     name="wallet_contract_batch_validation_workflow",
-    description="Batch validate all inputs, explain with Gemini, write outputs, and post each output to chat (prompt-independent).",
+    description="Batch validate all inputs, explain with Gemini, write outputs, and post Markdown summaries to chat (prompt-independent).",
     sub_agents=[BatchValidationAgent()],
 )
 
