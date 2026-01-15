@@ -21,8 +21,19 @@ class IDExtraction(BaseModel):
     issuing_authority: Optional[str] = Field(None)
     is_expired: Optional[bool] = Field(None)    
 
+async def clear_history(tool_context: ToolContext) -> str:
+    try:
+        # Access the underlying message history in the ADK session
+        # This removes the accumulated image tokens from previous turns
+        if hasattr(tool_context, 'parent_context') and hasattr(tool_context.parent_context, 'messages'):
+            tool_context.parent_context.messages = []
+            return "Success: Conversation history cleared. Tokens reset."
+        return "Warning: Could not find history to clear, but proceeding."
+    except Exception as e:
+        return f"Error clearing history: {str(e)}"
+
 # FIX: Added 'async' keyword here
-async def load_image(path: str, tool_context: ToolContext) -> str:
+async def load_image(path: str, tool_context: ToolContext) -> types.Part:
     """
     Loads an image from the agent's Data/ folder and saves as artifact.
     """
@@ -39,8 +50,8 @@ async def load_image(path: str, tool_context: ToolContext) -> str:
 
         # This 'await' now works correctly
         await tool_context.save_artifact(filename, image_part)
-       
-        return f"Success: {filename} loaded. You can now analyze its visual content."
+        return image_part
+        #return f"Success: {filename} loaded. You can now analyze its visual content."
     except Exception as e:
         return f"Error: {str(e)}"
 
@@ -49,8 +60,15 @@ root_agent = Agent(
     model='gemini-2.0-flash',
     description="Extracts information from ID proofs.",
     instruction="""
-    1. Use 'load_image' or 'load_and_ocr_image' to get the file.
-    2. Extract details including Name, DOB, Address, and ID Number.
+    You are an ID validation expert. 
+    1. When a user provides a filename, call 'load_image' immediately using that filename as the 'path'.
+    2. Once you receive the image data, examine it carefully to extract details.
+    3. If visual details are unclear, call 'load_and_ocr_image' for text assistance.
+    4. Cross-reference visual data with OCR text. If they differ, prefer the MRZ (bottom text) for Passports.
+    4. Extract: Full Name, Date of Birth (YYYY-MM-DD), Address, and ID Number.
+    5. Use 'clear_history' if you encounter a token limit error or after every 2 extractions.
+    6. Provide the final output strictly in this JSON format:
+    {IDExtraction.model_json_schema()}
     """,
-    tools=[load_image, load_and_ocr_image],
+    tools=[load_image, load_and_ocr_image, clear_history],
 )

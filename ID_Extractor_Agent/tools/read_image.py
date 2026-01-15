@@ -11,6 +11,8 @@ from pathlib import Path
 # Since read_image.py is in 'tools/', .parent.parent gets us to 'id_data_extractor_agent/'
 SCRIPT_DIR = Path(__file__).parent.parent 
 
+print(SCRIPT_DIR)
+
 async def load_and_ocr_image(path: str, tool_context) -> str:
     """
     Loads an image and extracts text via OCR.
@@ -25,7 +27,9 @@ async def load_and_ocr_image(path: str, tool_context) -> str:
     try:
         # OCR Processing
         with Image.open(img_path) as img:
-            extracted_text = pytesseract.image_to_string(img)
+            img = img.convert('L')
+            img = img.point(lambda x: 0 if x < 140 else 255, '1')
+            extracted_text = pytesseract.image_to_string(img, config='--psm 3')
 
         # Artifact Saving (only if tool_context is provided)
         if tool_context:
