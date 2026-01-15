@@ -1,0 +1,88 @@
+member_id,full_name,ssn_suffix,current_employer_id,postal_code,last_contribution_date,status,employer_name
+M-1001,James Anderson,4412,EMP-010,NW1 6XE,2025-05-15,Active,Microsoft
+M-1002,Sarah Jenkins-Smythe,8821,EMP-022,SE1 7PB,2025-06-01,Active,Google
+M-1003,Robert O'Connor,3319,EMP-005,B1 1QU,2025-04-20,Missing_Contrib,Amazon
+M-1004,Amara Okafor,7762,EMP-099,M1 4BT,2025-05-30,Active,Apple
+M-1005,William Chen,1104,EMP-010,G1 1XW,2025-06-15,Active,Meta
+M-1006,Linda Berkowitz,9901,EMP-015,L1 8JQ,2025-03-10,Missing_Contrib,IBM
+M-1007,Marcus Vane,2218,EMP-030,BS1 5TR,2025-05-20,Active,Oracle
+M-1008,Sriya Gupta,6654,EMP-088,CB1 1AH,2025-06-01,Active,Salesforce
+M-1009,David Miller,3341,EMP-010,CF10 1EP,2025-04-12,Missing_Contrib,SAP
+M-1010,Fatima Zahra,4482,EMP-045,LS1 2UR,2025-06-10,Active,Adobe
+M-1011,Thomas Wright,1290,EMP-022,YO1 7JF,2025-05-05,Active,Netflix
+M-1012,Elena Rossi,3345,EMP-011,N1 9GU,2025-04-28,Missing_Contrib,Uber
+M-1013,Kevin McAllister,8829,EMP-002,BT1 4LS,2025-06-15,Active,Airbnb
+M-1014,Chloe Zhang,7710,EMP-099,E1 6AN,2025-05-22,Active,LinkedIn
+M-1015,Samuel Osei,5561,EMP-010,OX1 2JD,2025-03-30,Missing_Contrib,Intel
+M-1016,Olivia Thompson,4432,EMP-015,M13 9PL,2025-06-05,Active,Cisco
+M-1017,Liam Gallagher,1121,EMP-030,M14 6AA,2025-04-15,Missing_Contrib,NVIDIA
+M-1018,Ananya Rao,9980,EMP-088,CB2 1TQ,2025-06-01,Active,AMD
+M-1019,George Papadopoulos,6612,EMP-022,W1J 7BU,2025-05-18,Active,Qualcomm
+M-1020,Isabella Santos,2234,EMP-011,SW11 1ED,2025-06-12,Active,Dell Technologies
+M-1021,Noah Smith,1122,EMP-001,SW1A 1AA,2025-05-20,Active,HP
+M-1022,Emma Johnson,3344,EMP-002,E1 6AN,2025-06-15,Active,Accenture
+M-1023,Oliver Williams,5566,EMP-003,M1 4BT,2025-04-10,Missing_Contrib,Capgemini
+M-1024,Sophia Brown,7788,EMP-004,G1 1XW,2025-06-01,Active,Infosys
+M-1025,Elijah Jones,9900,EMP-005,L1 8JQ,2025-05-15,Active,Wipro
+M-1026,Charlotte Garcia,2211,EMP-006,BS1 5TR,2025-03-20,Missing_Contrib,TCS
+M-1027,James Miller,4433,EMP-007,CB1 1AH,2025-06-10,Active,HCLTech
+M-1028,Amelia Davis,6655,EMP-008,CF10 1EP,2025-05-05,Active,Cognizant
+M-1029,William Rodriguez,8877,EMP-009,LS1 2UR,2025-04-25,Missing_Contrib,Atos
+M-1030,Mia Martinez,1199,EMP-010,YO1 7JF,2025-06-05,Active,DXC Technology
+M-1031,Benjamin Hernandez,2288,EMP-011,N1 9GU,2025-05-12,Active,EY
+M-1032,Evelyn Lopez,3377,EMP-012,BT1 4LS,2025-06-20,Active,Deloitte
+M-1033,Lucas Gonzalez,4466,EMP-013,E1 6AN,2025-04-18,Missing_Contrib,KPMG
+M-1034,Harper Wilson,5555,EMP-014,OX1 2JD,2025-06-01,Active,PwC
+M-1035,Alexander Anderson,6644,EMP-015,M13 9PL,2025-05-28,Active,McKinsey & Company
+M-1036,Abigail Thomas,7733,EMP-016,M14 6AA,2025-03-15,Missing_Contrib,Boston Consulting Group
+M-1037,Michael Taylor,8822,EMP-017,CB2 1TQ,2025-06-15,Active,Bain & Company
+M-1038,Ella Moore,9911,EMP-018,W1J 7BU,2025-05-10,Active,Siemens
+M-1039,Ethan Jackson,1100,EMP-019,SW11 1ED,2025-04-22,Missing_Contrib,Bosch
+M-1040,Elizabeth Martin,2200,EMP-020,SW1A 1AA,2025-06-01,Active,Honeywell
+M-1041,Daniel Lee,3311,EMP-021,E1 6AN,2025-05-15,Active,GE
+M-1042,Sofia Perez,4422,EMP-022,M1 4BT,2025-06-18,Active,Lockheed Martin
+M-1043,Matthew Thompson,5533,EMP-023,G1 1XW,2025-04-05,Missing_Contrib,Northrop Grumman
+M-1044,Avery White,6644,EMP-024,L1 8JQ,2025-06-10,Active,Raytheon Technologies
+M-1045,Jackson Harris,7755,EMP-025,BS1 5TR,2025-05-25,Active,Rolls-Royce
+M-1046,Scarlett Sanchez,8866,EMP-026,CB1 1AH,2025-03-30,Missing_Contrib,Shell
+M-1047,Sebastian Clark,9977,EMP-027,CF10 1EP,2025-06-05,Active,BP
+M-1048,Madison Ramirez,1188,EMP-028,LS1 2UR,2025-05-18,Active,ExxonMobil
+M-1049,Jack Lewis,2299,EMP-029,YO1 7JF,2025-04-12,Missing_Contrib,Chevron
+M-1050,Victoria Robinson,3300,EMP-030,N1 9GU,2025-06-15,Active,TotalEnergies
+M-1051,Samuel Walker,4411,EMP-031,BT1 4LS,2025-05-20,Active,Unilever
+M-1052,Aria Young,5522,EMP-032,E1 6AN,2025-06-10,Active,Procter & Gamble
+M-1053,David Allen,6633,EMP-033,OX1 2JD,2025-04-28,Missing_Contrib,Nestlé
+M-1054,Grace King,7744,EMP-034,M13 9PL,2025-06-01,Active,PepsiCo
+M-1055,Joseph Wright,8855,EMP-035,M14 6AA,2025-05-15,Active,Coca-Cola
+M-1056,Chloe Scott,9966,EMP-036,CB2 1TQ,2025-03-25,Missing_Contrib,Nike
+M-1057,Carter Torres,1177,EMP-037,W1J 7BU,2025-06-20,Active,Adidas
+M-1058,Penelope Nguyen,2266,EMP-038,SW11 1ED,2025-05-05,Active,Spotify
+M-1059,Owen Hill,3355,EMP-039,SW1A 1AA,2025-04-15,Missing_Contrib,Stripe
+M-1060,Riley Flores,4444,EMP-040,E1 6AN,2025-06-05,Active,Snowflake
+M-1061,Wyatt Green,5511,EMP-041,M1 4BT,2025-05-12,Active,Microsft
+M-1062,Layla Adams,6622,EMP-042,G1 1XW,2025-06-15,Active,Gooogle
+M-1063,John Nelson,7799,EMP-043,L1 8JQ,2025-04-22,Missing_Contrib,Amazn
+M-1064,Nora Baker,8888,EMP-044,BS1 5TR,2025-06-01,Active,Appl Inc
+M-1065,Luke Hall,9999,EMP-045,CB1 1AH,2025-05-28,Active,Metaa
+M-1066,Hazel Rivera,1111,EMP-046,CF10 1EP,2025-03-10,Missing_Contrib,IBN
+M-1067,Dylan Campbell,2222,EMP-047,LS1 2UR,2025-06-12,Active,Orakle
+M-1068,Lily Mitchell,3333,EMP-048,YO1 7JF,2025-05-15,Active,Salesforc
+M-1069,Levi Carter,4444,EMP-049,N1 9GU,2025-04-05,Missing_Contrib,SAP SEEE
+M-1070,Elena Roberts,5555,EMP-050,BT1 4LS,2025-06-18,Active,Ad0be
+M-1071,Isaac Gomez,6666,EMP-051,E1 6AN,2025-05-20,Active,Netflx
+M-1072,Zoey Phillips,7777,EMP-052,OX1 2JD,2025-06-05,Active,Uuber
+M-1073,Nathan Evans,8888,EMP-053,M13 9PL,2025-04-28,Missing_Contrib,AirBnB Ltd
+M-1074,Stella Turner,9999,EMP-054,M14 6AA,2025-06-10,Active,LinkdIn
+M-1075,Caleb Diaz,1111,EMP-055,CB2 1TQ,2025-05-15,Active,Intell
+M-1076,Natalie Parker,2222,EMP-056,W1J 7BU,2025-03-20,Missing_Contrib,Cysco
+M-1077,Ryan Cruz,3333,EMP-057,SW11 1ED,2025-06-25,Active,NVlDlA
+M-1078,Lila Edwards,4444,EMP-058,SW1A 1AA,2025-05-10,Active,Qwalcomm
+M-1079,Hunter Collins,5555,EMP-059,E1 6AN,2025-04-18,Missing_Contrib,Dell Techno
+M-1080,Lucy Reyes,6666,EMP-060,M1 4BT,2025-06-01,Active,HP Computers
+M-1081,Christian Stewart,7777,EMP-061,G1 1XW,2025-05-12,Active,Accenturre
+M-1082,Zoe Morris,8888,EMP-062,L1 8JQ,2025-06-15,Active,Capgeminni
+M-1083,Landon Morales,9999,EMP-063,BS1 5TR,2025-04-05,Missing_Contrib,Infosyss
+M-1084,Paisley Murphy,1111,EMP-064,CB1 1AH,2025-06-20,Active,Wipp ro
+M-1085,Jonathan Cook,2222,EMP-065,CF10 1EP,2025-05-15,Active,TCS Corp
+M-1086,Audrey Rogers,3333,EMP-066,LS1 2UR,2025-03-12,Missing_Contrib,HCL Techologies
+M-1087,Isaiah Gutierrez,4444,EMP-067,YO1 7JF,2025-06-05,Active,Cognezant

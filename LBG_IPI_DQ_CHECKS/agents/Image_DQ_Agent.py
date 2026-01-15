@@ -94,32 +94,7 @@ async def inject_id_image(callback_context, llm_request):
 # We bundle the filename and the image together in the user message
     llm_request.contents.append(types.Content(role="user", parts=[image_part, filename_part]))
 
-# --- 3. AGENT DEFINITION ---
-
-# Agent 1: The Extractor
-id_extractor_agent = LlmAgent(
-    name='id_data_extractor_agent',
-    description='An agent that extracts ID details from images.',
-    model='gemini-2.5-flash',
-    instruction="""You are an expert in extracting information from ID proofs which include but are not limited to passports, driver licenses, national ID cards, etc. It will be in image or scanned document format.
-    1. Look at the attached image or document.
-    2. Extract the details accurately.
-    3. Return the data ONLY as a JSON object following the given schema.
-    4. If information is missing, use null.
-    5. Use the provided 'filename' in the prompt to fill the 'id_doc_name' field.
-    6. Format the Date of Birth as YYYY-MM-DD.
-    7. Do not add any extra text or explanation outside the JSON object.
-    8. Return ONLY valid JSON as per the below structure.
-            full_name: str
-            id_number: str
-            date_of_birth: str | None = None
-            address: str | None = None
-            id_doc_name: str
-    """,
-    #output_schema=IDDetails,
-    before_model_callback=inject_id_image
-)
-
+# --- 3. EXECUTION LOOP ---
 async def main():
     # 1. Initialize result list early to prevent UnboundLocalError
     all_results = []
@@ -258,6 +233,31 @@ async def main():
 
     except Exception as e:
         print(f"❌ Batch Error: {e}")
+
+
+# Agent 1: The Extractor
+id_extractor_agent = LlmAgent(
+    name='id_data_extractor_agent',
+    description='An agent that extracts ID details from images.',
+    model='gemini-2.5-flash',
+    instruction="""You are an expert in extracting information from ID proofs which include but are not limited to passports, driver licenses, national ID cards, etc. It will be in image or scanned document format.
+    1. Look at the attached image or document.
+    2. Extract the details accurately.
+    3. Return the data ONLY as a JSON object following the given schema.
+    4. If information is missing, use null.
+    5. Use the provided 'filename' in the prompt to fill the 'id_doc_name' field.
+    6. Format the Date of Birth as YYYY-MM-DD.
+    7. Do not add any extra text or explanation outside the JSON object.
+    8. Return ONLY valid JSON as per the below structure.
+            full_name: str
+            id_number: str
+            date_of_birth: str | None = None
+            address: str | None = None
+            id_doc_name: str
+    """,
+    #output_schema=IDDetails,
+    before_model_callback=inject_id_image
+)
 
 # Agent 2: The DQ Validator
 id_dq_agent = LlmAgent(

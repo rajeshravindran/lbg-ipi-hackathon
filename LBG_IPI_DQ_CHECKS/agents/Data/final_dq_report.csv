@@ -1,0 +1,13 @@
+full_name,id_number,date_of_birth,address,id_doc_name,DQ_result,DQ_reason
+JODIE PIPPA UNITED-KINGDOM-FIVE,107185703,1985-01-17,,uk_pp_sample1.jpg,PASS,
+LEE STEVEN,LEE99913032SM9IJ 49,1992-03-13,123 HUDDERSFIELD RD,uk_dl_sample4.jpg,PASS,
+Mrs Leanne Amanda Stewart,STEWA007952MS9UD 54,1979-02-05,"90 HILLSIDE AVE, FARNWORTH, BOLTON BL4 9QB",uk_dl_sample5.jpg,FAIL,id_number mismatch. Extracted 'STEWA007952MS9UD 54' differs from Reference 'STEWA007952MS9UD'. The reference data is missing the ' 54' suffix which is present on the document.
+ANNA MARIA JOHNSON,JOHNS123456EJ8FA,1995-06-21,"IDGOD.PH, IDGOD.PH, 12345",uk_dl_sample6.jpg,FAIL,"The 'id_number' field mismatches. Extracted: 'JOHNS123456EJ8FA', Reference: 'JOHNS123456EJ8FA05'. The suffix '05' is missing in the extracted data."
+ANDREA JOAN CAMPBELL,99999999,1964-07-05,"123 CASTLEROCK ROAD, COLERAINE CO. LONDONDERRY BT51 3TB",uk_dl_sample2.jpg,PASS,
+MR ALAN SAMPLE,31645924,1985-01-06,COUNTY HALL COLERAINE BT51 3TB,uk_dl_sample3.jpg,PASS,
+ADAM NORMAN OTHER,074025472,1960-01-01,,uk_pp_sample6.jpg,PASS,
+PIRZADA MOEED HASSAN,536692086,1965-07-29,,uk_pp_sample4.jpg,PASS,
+SARAH MEREDYTH MORGAN,MORGA753116SM9IJ,1976-03-11,"122 BURNS CRESCENT
+EDINBURGH
+EH1 9GP",uk_dl_sample1.jpg,FAIL,"id_number mismatch. Extracted: 'MORGA753116SM9IJ', Reference: 'MORGA753218SMB9IJ'."
+ANDREA CHARLOTTE CRANWELL,791234567,1969-08-06,,uk_pp_sample5.jpg,PASS,
