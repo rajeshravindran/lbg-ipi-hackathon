@@ -1,0 +1,195 @@
+/* Chatbot Window Container */
+.aviva-chatbot-window {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 360px;
+    height: 600px;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    z-index: 9999;
+    font-family: "Sourcesanspro", sans-serif; /* Matching existing font */
+    overflow: hidden;
+    border: 1px solid #ddd;
+}
+
+.aviva-chatbot-window.is-open {
+    display: flex;
+}
+
+/* Header */
+.aviva-chatbot-header {
+    background-color: #FFD900; /* Aviva Yellow */
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e6c200;
+}
+
+.aviva-chatbot-logo {
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    color: #004FB6; /* Aviva Blue */
+    font-size: 18px;
+    letter-spacing: 0.5px;
+}
+
+.aviva-chatbot-logo img {
+    height: 20px;
+    margin-right: 8px;
+}
+
+.aviva-chatbot-controls {
+    display: flex;
+    gap: 12px;
+}
+
+.aviva-chatbot-control-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #004FB6;
+    font-size: 20px;
+    padding: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.aviva-chatbot-control-btn:hover {
+    color: #003a85;
+}
+
+/* Body (Chat Area) */
+.aviva-chatbot-body {
+    flex: 1;
+    padding: 20px 16px;
+    overflow-y: auto;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+}
+
+.aviva-chatbot-disclaimer {
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.aviva-chatbot-disclaimer a {
+    color: #004FB6;
+    text-decoration: underline;
+}
+
+/* Messages */
+.aviva-message-group {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+}
+
+.aviva-bot-avatar {
+    width: 32px;
+    height: 32px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.aviva-bot-avatar img {
+    width: 100%;
+    height: auto;
+}
+
+
+.aviva-message-bubble {
+    background-color: #f1f2f2;
+    padding: 16px;
+    border-radius: 4px;
+    font-size: 16px;
+    line-height: 1.4;
+    color: #333;
+    max-width: 85%;
+}
+
+.aviva-message-title {
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: block;
+    color: #333;
+}
+
+.aviva-message-time {
+    font-size: 11px;
+    color: #666;
+    text-align: right;
+    margin-top: 4px;
+    display: block;
+    width: 100%;
+}
+
+/* Footer (Input) */
+.aviva-chatbot-footer {
+    padding: 16px;
+    background-color: #fff;
+    border-top: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.aviva-chatbot-input {
+    flex: 1;
+    border: none;
+    font-size: 16px;
+    color: #333;
+    outline: none;
+    font-family: inherit;
+}
+
+.aviva-chatbot-input::placeholder {
+    color: #999;
+}
+
+.aviva-chatbot-send-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #0099cc; /* Send button color */
+    font-size: 20px;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.aviva-chatbot-send-btn svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+    transform: rotate(0deg); /* Adjust if needed */
+}
+
+/* Helper for mobile hidden if needed, reusing existing classes */
+@media (max-width: 768px) {
+    .aviva-chatbot-window {
+        width: 100%;
+        height: 100%;
+        bottom: 0;
+        right: 0;
+        border-radius: 0;
+    }
+}

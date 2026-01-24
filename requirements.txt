@@ -13,3 +13,6 @@ pypdf
 pytesseract
 pillow
 pandas_gbq
+fastapi
+uvicorn
+streamlit
