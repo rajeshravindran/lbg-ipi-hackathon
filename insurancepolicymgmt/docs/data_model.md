@@ -13,7 +13,7 @@ erDiagram
     POLICY ||--|| LIFE_POLICY : extends
     POLICY ||--|| PROPERTY_POLICY : extends
     POLICY ||--|| VEHICLE_POLICY : extends
-    OFFER }o--o{ CUSTOMER : "applies to"
+    OFFER }o--o{ CUSTOMER : applies_to
 
     CUSTOMER {
         string id PK
@@ -41,7 +41,7 @@ erDiagram
     }
 
     LIFE_POLICY {
-        string policy_id PK_FK
+        string policy_id FK
         string beneficiary_name
         string beneficiary_relation
         int term_years
@@ -51,7 +51,7 @@ erDiagram
     }
 
     PROPERTY_POLICY {
-        string policy_id PK_FK
+        string policy_id FK
         string property_address
         string property_type
         float property_value
@@ -61,7 +61,7 @@ erDiagram
     }
 
     VEHICLE_POLICY {
-        string policy_id PK_FK
+        string policy_id FK
         string vehicle_vin
         string make
         string model
