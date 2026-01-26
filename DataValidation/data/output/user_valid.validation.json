@@ -1,0 +1,39 @@
+{
+  "$schema": "adk.wallet.validation.output.v1",
+  "input_file": "/Users/mia/myprojects/uv_projects/lbg-ipi-hackathon/DataValidation/data/input/user_valid.json",
+  "record_hint": "AB12CD34EF",
+  "ok": false,
+  "counts": {
+    "schema_issues": 0,
+    "null_issues": 0,
+    "timestamp_issues": 1,
+    "total": 1
+  },
+  "issues": [
+    {
+      "category": "late_data_beyond_watermark",
+      "severity": "low",
+      "detail": {
+        "source_event_time": "2026-01-10T06:40:00+00:00",
+        "watermark_cutoff": "2026-01-13T17:08:35.000739+00:00"
+      }
+    }
+  ],
+  "timestamp_metrics": {
+    "lags_sec": {
+      "event_to_publish": 70.0,
+      "publish_to_validate": 2.0,
+      "validate_to_commit": 23.0
+    },
+    "availability": {
+      "source_event_time": true,
+      "pubsub_publish_time": true,
+      "validator_start_time": true,
+      "commit_time": true
+    }
+  },
+  "llm": {
+    "summary_text": "SUMMARY: The record failed validation due to: late_data_beyond_watermark. Suggested remediation: fix event/publish/validate/commit ordering, keep lags within SLO, and avoid lateness beyond the watermark.",
+    "structured": {}
+  }
+}
