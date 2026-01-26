@@ -22,7 +22,7 @@ erDiagram
         string phone UK
         date dob
         string ssn_last4
-        enum customer_type "existing|new"
+        string customer_type
         datetime registration_date
         string address
     }
@@ -30,8 +30,8 @@ erDiagram
     POLICY {
         string id PK
         string customer_id FK
-        enum policy_type "life|property|vehicle"
-        enum status "active|pending|cancelled|expired"
+        string policy_type
+        string status
         float coverage_amount
         float monthly_premium
         date start_date
@@ -53,7 +53,7 @@ erDiagram
     PROPERTY_POLICY {
         string policy_id PK_FK
         string property_address
-        enum property_type "house|apartment|condo"
+        string property_type
         float property_value
         float deductible
         bool flood_coverage
@@ -66,14 +66,14 @@ erDiagram
         string make
         string model
         int year
-        enum coverage_type "liability|collision|comprehensive"
+        string coverage_type
         float deductible
     }
 
     LIFE_EVENT {
         string id PK
         string customer_id FK
-        enum event_type "marriage|child_turning_18|house_purchase|retirement|new_baby"
+        string event_type
         date event_date
         bool processed
         string suggested_policies
@@ -82,7 +82,7 @@ erDiagram
     TRANSACTION {
         string id PK
         string policy_id FK
-        enum type "purchase|renewal|cancellation|modification|claim"
+        string type
         float amount
         datetime transaction_date
         string description
@@ -91,7 +91,7 @@ erDiagram
     OFFER {
         string id PK
         string name
-        enum offer_type "discount|bonus_coverage|loyalty|retention"
+        string offer_type
         float discount_percent
         string description
         date valid_from
