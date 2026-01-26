@@ -1,0 +1,65 @@
+[
+    {
+        "id": "LE001",
+        "customer_id": "CUST001",
+        "event_type": "child_turning_18",
+        "event_date": "2026-03-20",
+        "processed": false,
+        "suggested_policies": [
+            "life",
+            "vehicle"
+        ]
+    },
+    {
+        "id": "LE002",
+        "customer_id": "CUST002",
+        "event_type": "house_purchase",
+        "event_date": "2026-02-15",
+        "processed": false,
+        "suggested_policies": [
+            "property"
+        ]
+    },
+    {
+        "id": "LE003",
+        "customer_id": "CUST004",
+        "event_type": "marriage",
+        "event_date": "2026-06-01",
+        "processed": false,
+        "suggested_policies": [
+            "life",
+            "property"
+        ]
+    },
+    {
+        "id": "LE004",
+        "customer_id": "CUST008",
+        "event_type": "new_baby",
+        "event_date": "2026-04-10",
+        "processed": false,
+        "suggested_policies": [
+            "life"
+        ]
+    },
+    {
+        "id": "LE005",
+        "customer_id": "CUST005",
+        "event_type": "retirement",
+        "event_date": "2026-12-31",
+        "processed": false,
+        "suggested_policies": [
+            "life",
+            "property"
+        ]
+    },
+    {
+        "id": "LE006",
+        "customer_id": "CUST003",
+        "event_type": "child_turning_18",
+        "event_date": "2026-05-15",
+        "processed": true,
+        "suggested_policies": [
+            "vehicle"
+        ]
+    }
+]

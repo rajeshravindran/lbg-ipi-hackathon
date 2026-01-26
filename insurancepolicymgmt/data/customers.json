@@ -1,0 +1,112 @@
+[
+    {
+        "id": "CUST001",
+        "name": "John Smith",
+        "email": "john.smith@email.com",
+        "phone": "07700 900501",
+        "dob": "1985-03-15",
+        "ssn_last4": "1234",
+        "customer_type": "existing",
+        "registration_date": "2020-01-15T10:30:00Z",
+        "address": "123 High Street, Guilford, GU1 3AJ"
+    },
+    {
+        "id": "CUST002",
+        "name": "Sarah Johnson",
+        "email": "sarah.johnson@email.com",
+        "phone": "07700 900502",
+        "dob": "1990-07-22",
+        "ssn_last4": "5678",
+        "customer_type": "existing",
+        "registration_date": "2019-06-20T14:15:00Z",
+        "address": "456 London Road, Manchester, M1 4DY"
+    },
+    {
+        "id": "CUST003",
+        "name": "Michael Chen",
+        "email": "michael.chen@email.com",
+        "phone": "07700 900503",
+        "dob": "1978-11-08",
+        "ssn_last4": "9012",
+        "customer_type": "existing",
+        "registration_date": "2018-03-10T09:00:00Z",
+        "address": "789 Station Road, Birmingham, B2 4QF"
+    },
+    {
+        "id": "CUST004",
+        "name": "Emily Davis",
+        "email": "emily.davis@email.com",
+        "phone": "07700 900504",
+        "dob": "1992-05-30",
+        "ssn_last4": "3456",
+        "customer_type": "existing",
+        "registration_date": "2021-09-05T11:45:00Z",
+        "address": "321 Park Avenue, Bristol, BS1 5TY"
+    },
+    {
+        "id": "CUST005",
+        "name": "Robert Wilson",
+        "email": "robert.wilson@email.com",
+        "phone": "07700 900505",
+        "dob": "1965-12-18",
+        "ssn_last4": "7890",
+        "customer_type": "existing",
+        "registration_date": "2017-02-28T08:30:00Z",
+        "address": "654 Victoria Street, Leeds, LS1 6HG"
+    },
+    {
+        "id": "CUST006",
+        "name": "Jennifer Martinez",
+        "email": "jennifer.martinez@email.com",
+        "phone": "07700 900506",
+        "dob": "1988-09-12",
+        "ssn_last4": "2345",
+        "customer_type": "existing",
+        "registration_date": "2022-04-18T16:20:00Z",
+        "address": "987 Church Lane, Liverpool, L3 8JK"
+    },
+    {
+        "id": "CUST007",
+        "name": "David Thompson",
+        "email": "david.thompson@email.com",
+        "phone": "07700 900507",
+        "dob": "1975-04-25",
+        "ssn_last4": "6789",
+        "customer_type": "existing",
+        "registration_date": "2016-11-12T13:00:00Z",
+        "address": "147 King Street, Edinburgh, EH2 9PL"
+    },
+    {
+        "id": "CUST008",
+        "name": "Lisa Anderson",
+        "email": "lisa.anderson@email.com",
+        "phone": "07700 900508",
+        "dob": "1995-01-07",
+        "ssn_last4": "0123",
+        "customer_type": "existing",
+        "registration_date": "2023-01-25T10:10:00Z",
+        "address": "258 Queen's Road, Glasgow, G1 2XW"
+    },
+    {
+        "id": "CUST009",
+        "name": "James Brown",
+        "email": "james.brown@email.com",
+        "phone": "07700 900509",
+        "dob": "1982-08-19",
+        "ssn_last4": "4567",
+        "customer_type": "existing",
+        "registration_date": "2020-07-30T15:45:00Z",
+        "address": "369 Oxford Road, Reading, RG1 7MN"
+    },
+    {
+        "id": "CUST010",
+        "name": "Amanda Garcia",
+        "email": "amanda.garcia@email.com",
+        "phone": "07700 900510",
+        "dob": "1998-02-14",
+        "ssn_last4": "8901",
+        "customer_type": "existing",
+        "registration_date": "2024-03-08T09:30:00Z",
+        "address": "741 Cambridge Street, Brighton, BN1 3PO"
+    }
+]

@@ -1,0 +1,62 @@
+[
+    {
+        "id": "VP001",
+        "policy_id": "POL002",
+        "vehicle_vin": "1HGBH41JXMN109186",
+        "make": "Vauxhall",
+        "model": "Corsa",
+        "year": 2022,
+        "coverage_type": "comprehensive",
+        "deductible": 250
+    },
+    {
+        "id": "VP002",
+        "policy_id": "POL007",
+        "vehicle_vin": "2T1BURHE5JC123456",
+        "make": "Ford",
+        "model": "Fiesta",
+        "year": 2023,
+        "coverage_type": "comprehensive",
+        "deductible": 250
+    },
+    {
+        "id": "VP003",
+        "policy_id": "POL008",
+        "vehicle_vin": "3FA6P0H77LR234567",
+        "make": "Volkswagen",
+        "model": "Golf",
+        "year": 2020,
+        "coverage_type": "third-party fire and theft",
+        "deductible": 500
+    },
+    {
+        "id": "VP004",
+        "policy_id": "POL014",
+        "vehicle_vin": "5YJ3E1EA1JF345678",
+        "make": "Tesla",
+        "model": "Model 3",
+        "year": 2019,
+        "coverage_type": "comprehensive",
+        "deductible": 350
+    },
+    {
+        "id": "VP005",
+        "policy_id": "POL015",
+        "vehicle_vin": "1G1YY22G965456789",
+        "make": "BMW",
+        "model": "3 Series",
+        "year": 2021,
+        "coverage_type": "comprehensive",
+        "deductible": 400
+    },
+    {
+        "id": "VP006",
+        "policy_id": "POL018",
+        "vehicle_vin": "WVWZZZ3CZWE567890",
+        "make": "Audi",
+        "model": "A3",
+        "year": 2023,
+        "coverage_type": "third-party only",
+        "deductible": 750
+    }
+]

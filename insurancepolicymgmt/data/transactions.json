@@ -1,0 +1,98 @@
+[
+  {
+    "id": "TXN001",
+    "policy_id": "POL001",
+    "type": "purchase",
+    "amount": 1500.0,
+    "transaction_date": "2020-01-20T10:00:00Z",
+    "description": "Initial policy purchase - annual premium"
+  },
+  {
+    "id": "TXN002",
+    "policy_id": "POL001",
+    "type": "renewal",
+    "amount": 1500.0,
+    "transaction_date": "2024-01-15T09:30:00Z",
+    "description": "Annual policy renewal"
+  },
+  {
+    "id": "TXN003",
+    "policy_id": "POL002",
+    "type": "purchase",
+    "amount": 1020.0,
+    "transaction_date": "2023-06-10T14:20:00Z",
+    "description": "Initial vehicle policy purchase - annual premium"
+  },
+  {
+    "id": "TXN004",
+    "policy_id": "POL003",
+    "type": "purchase",
+    "amount": 1800.0,
+    "transaction_date": "2019-06-25T11:00:00Z",
+    "description": "Initial property policy purchase - annual premium"
+  },
+  {
+    "id": "TXN005",
+    "policy_id": "POL003",
+    "type": "renewal",
+    "amount": 1800.0,
+    "transaction_date": "2023-07-01T10:00:00Z",
+    "description": "Annual policy renewal"
+  },
+  {
+    "id": "TXN006",
+    "policy_id": "POL005",
+    "type": "modification",
+    "amount": 500.0,
+    "transaction_date": "2023-04-01T08:00:00Z",
+    "description": "Coverage increase - additional premium"
+  },
+  {
+    "id": "TXN007",
+    "policy_id": "POL014",
+    "type": "cancellation",
+    "amount": -420.0,
+    "transaction_date": "2023-02-01T15:00:00Z",
+    "description": "Policy cancellation - refund for remaining period"
+  },
+  {
+    "id": "TXN008",
+    "policy_id": "POL009",
+    "type": "claim",
+    "amount": -15000.0,
+    "transaction_date": "2022-08-15T14:00:00Z",
+    "description": "Life insurance claim payout - partial"
+  },
+  {
+    "id": "TXN009",
+    "policy_id": "POL006",
+    "type": "claim",
+    "amount": -8500.0,
+    "transaction_date": "2023-03-20T11:30:00Z",
+    "description": "Property damage claim - storm damage"
+  },
+  {
+    "id": "TXN010",
+    "policy_id": "POL007",
+    "type": "purchase",
+    "amount": 1320.0,
+    "transaction_date": "2024-01-10T11:00:00Z",
+    "description": "Initial vehicle policy purchase - annual premium"
+  },
+  {
+    "id": "TXN011",
+    "policy_id": "POL019",
+    "type": "purchase",
+    "amount": 1342.32,
+    "transaction_date": "2026-01-26T00:59:13.256281",
+    "description": "Initial property policy purchase - annual premium"
+  },
+  {
+    "id": "TXN012",
+    "policy_id": "POL001",
+    "type": "modification",
+    "amount": 300.0,
+    "transaction_date": "2026-01-26T01:01:47.101472",
+    "description": "Coverage increased from \u00a3500,000 to \u00a3600,000"
+  }
+]

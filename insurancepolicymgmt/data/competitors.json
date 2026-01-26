@@ -1,0 +1,182 @@
+[
+    {
+        "provider": "AXA UK",
+        "policies": [
+            {
+                "policy_type": "life",
+                "coverage_amount": 500000,
+                "monthly_premium": 135.00,
+                "term_years": 20,
+                "features": [
+                    "Critical illness cover option",
+                    "Terminal illness benefit",
+                    "Guaranteed premiums"
+                ]
+            },
+            {
+                "policy_type": "property",
+                "coverage_amount": 350000,
+                "monthly_premium": 165.00,
+                "features": [
+                    "Home emergency cover",
+                    "Accidental damage",
+                    "Trace and access"
+                ]
+            },
+            {
+                "policy_type": "vehicle",
+                "coverage_amount": 50000,
+                "monthly_premium": 95.00,
+                "features": [
+                    "Wrong fuel cover",
+                    "Uninsured driver promise",
+                    "Lifetime repair guarantee"
+                ]
+            }
+        ]
+    },
+    {
+        "provider": "Direct Line",
+        "policies": [
+            {
+                "policy_type": "life",
+                "coverage_amount": 500000,
+                "monthly_premium": 140.00,
+                "term_years": 20,
+                "features": [
+                    "Over 50s options",
+                    "Fracture cover",
+                    "Funeral benefit pledge"
+                ]
+            },
+            {
+                "policy_type": "property",
+                "coverage_amount": 350000,
+                "monthly_premium": 155.00,
+                "features": [
+                    "Alternative accommodation",
+                    "Replacement as new",
+                    "Garden cover"
+                ]
+            },
+            {
+                "policy_type": "vehicle",
+                "coverage_amount": 50000,
+                "monthly_premium": 88.00,
+                "features": [
+                    "Guaranteed hire car",
+                    "Onward travel",
+                    "Vandalism cover"
+                ]
+            }
+        ]
+    },
+    {
+        "provider": "Admiral",
+        "policies": [
+            {
+                "policy_type": "life",
+                "coverage_amount": 500000,
+                "monthly_premium": 128.00,
+                "term_years": 20,
+                "features": [
+                    "Multi-cover discount",
+                    "Health and wellbeing support",
+                    "Simple application"
+                ]
+            },
+            {
+                "policy_type": "property",
+                "coverage_amount": 350000,
+                "monthly_premium": 145.00,
+                "features": [
+                    "Platinum cover options",
+                    "Bicycle cover",
+                    "Legal expenses"
+                ]
+            },
+            {
+                "policy_type": "vehicle",
+                "coverage_amount": 50000,
+                "monthly_premium": 82.00,
+                "features": [
+                    "Multi-car discount",
+                    "Windscreen repair",
+                    "European cover"
+                ]
+            }
+        ]
+    },
+    {
+        "provider": "Liverpool Victoria (LV=)",
+        "policies": [
+            {
+                "policy_type": "life",
+                "coverage_amount": 500000,
+                "monthly_premium": 132.00,
+                "term_years": 20,
+                "features": [
+                    "Doctor Services",
+                    "Terminal illness cover",
+                    "Relief option"
+                ]
+            },
+            {
+                "policy_type": "property",
+                "coverage_amount": 350000,
+                "monthly_premium": 158.00,
+                "features": [
+                    "Home entertainment cover",
+                    "Lost keys",
+                    "Deep clean service"
+                ]
+            },
+            {
+                "policy_type": "vehicle",
+                "coverage_amount": 50000,
+                "monthly_premium": 78.00,
+                "features": [
+                    "Misfuelling cover",
+                    "Replacement locks",
+                    "New car replacement"
+                ]
+            }
+        ]
+    },
+    {
+        "provider": "Vitality",
+        "policies": [
+            {
+                "policy_type": "life",
+                "coverage_amount": 500000,
+                "monthly_premium": 138.00,
+                "term_years": 20,
+                "features": [
+                    "Healthy living rewards",
+                    "Gym discounts",
+                    "Apple Watch offer"
+                ]
+            },
+            {
+                "policy_type": "property",
+                "coverage_amount": 350000,
+                "monthly_premium": 162.00,
+                "features": [
+                    "Smart home tech",
+                    "Preventative maintenance",
+                    "Sustainability bonus"
+                ]
+            },
+            {
+                "policy_type": "vehicle",
+                "coverage_amount": 50000,
+                "monthly_premium": 92.00,
+                "features": [
+                    "Good driving rewards",
+                    "Carbon offset",
+                    "Discounted servicing"
+                ]
+            }
+        ]
+    }
+]

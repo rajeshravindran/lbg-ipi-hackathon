@@ -1,0 +1,16 @@
+Requirement:
+Create a agentic RAG system for insurance policy management. The system should be able to handle multiple insurance policies and provide a user-friendly interface for users to manage their policies. For this project, we will use Google's Agent Development Kit (ADK) to build the multi-agent system. There will be two customer types: Existing customers and new customers. We will cover 3 policy types: Life, property and Vehicle. Existing customers will have access to their policies and be able to manage them. New customers will be able to purchase new policies. Existing customers will be able to view their policies and manage (list, update, renew, cancel, increase/decrease coverage, download policy documents, etc.) them. New customers will be able to purchase new policies. If existing customer and doesn't have a specific policy, the system should be able to suggest the best policy for them. Also for the existing customer the system should be able to suggest the policy based on customer situation like kids turning 18, getting married, buying a house, etc. For new customers the system should be able to suggest the best policy for them based on their situation. The system needs to also show comparison of the policy with other providers on features and premium using available APIs from internet. Once the confirmation is received process the request & provide the update. AT all times the system should be formal and professional. The system should be able to handle multiple users at the same time. Give more dynamic and intuitive experience to the users that they feel satisfied and impressive. Also customer cancelling policy needs to be attempted to be retained with offers, discounts and other incentives.
+
+Steps to create the system:
+1. Create the data model required for the whole system with clear entities, attributes and relationships covering to address all the functionality required.
+2. Create json based synthetic datasets with all the necessary data integrity between the tables which forms the base for the agentic system to operate.
+3. Create a multi-agent system using Google's Agent Development Kit (ADK)
+4. Create a tools to store, retrieve, update and delete the policies
+5. Create a search engine to search for policies
+6. Create a comparison engine to compare policies against other providers
+7. Create a suggestion engine to suggest policies
+8. Create a purchase engine to purchase policies
+9. Create a management engine to manage policies
+10. Keep the system modular, simpler codebase and easy to maintain. 
+11. Generate clear comments for each code block for better understanding and documentation.
+12. Generate clear and concise documentation for the system.

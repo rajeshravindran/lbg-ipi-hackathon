@@ -1,0 +1,82 @@
+[
+    {
+        "id": "OFF001",
+        "name": "Loyalty Discount",
+        "offer_type": "loyalty",
+        "discount_percent": 10,
+        "description": "10% discount for customers with 5+ years of continuous coverage",
+        "valid_from": "2024-01-01",
+        "valid_until": "2026-12-31",
+        "active": true
+    },
+    {
+        "id": "OFF002",
+        "name": "Multi-Policy Bundle",
+        "offer_type": "discount",
+        "discount_percent": 15,
+        "description": "15% discount when you bundle 2 or more policy types",
+        "valid_from": "2024-01-01",
+        "valid_until": "2026-12-31",
+        "active": true
+    },
+    {
+        "id": "OFF003",
+        "name": "Stay With Us",
+        "offer_type": "retention",
+        "discount_percent": 20,
+        "description": "Special 20% discount for customers considering cancellation",
+        "valid_from": "2024-01-01",
+        "valid_until": "2026-12-31",
+        "active": true
+    },
+    {
+        "id": "OFF004",
+        "name": "Premium Freeze",
+        "offer_type": "retention",
+        "discount_percent": 0,
+        "description": "Lock in your current premium rate for 3 years - no increases",
+        "valid_from": "2024-01-01",
+        "valid_until": "2026-12-31",
+        "active": true
+    },
+    {
+        "id": "OFF005",
+        "name": "Enhanced Coverage Bonus",
+        "offer_type": "bonus_coverage",
+        "discount_percent": 0,
+        "description": "Get 10% additional coverage at no extra cost when renewing",
+        "valid_from": "2024-01-01",
+        "valid_until": "2026-12-31",
+        "active": true
+    },
+    {
+        "id": "OFF006",
+        "name": "New Customer Welcome",
+        "offer_type": "discount",
+        "discount_percent": 25,
+        "description": "25% off your first year premium for new customers",
+        "valid_from": "2024-01-01",
+        "valid_until": "2026-12-31",
+        "active": true
+    },
+    {
+        "id": "OFF007",
+        "name": "Safe Driver Reward",
+        "offer_type": "discount",
+        "discount_percent": 15,
+        "description": "15% discount for drivers with no claims in the past 3 years",
+        "valid_from": "2024-01-01",
+        "valid_until": "2026-12-31",
+        "active": true
+    },
+    {
+        "id": "OFF008",
+        "name": "Last Chance Retention",
+        "offer_type": "retention",
+        "discount_percent": 30,
+        "description": "Our best offer - 30% discount plus premium freeze for loyal customers",
+        "valid_from": "2024-01-01",
+        "valid_until": "2026-12-31",
+        "active": true
+    }
+]

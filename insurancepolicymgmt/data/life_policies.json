@@ -1,0 +1,72 @@
+[
+    {
+        "id": "LP001",
+        "policy_id": "POL001",
+        "beneficiary_name": "Mary Smith",
+        "beneficiary_relation": "spouse",
+        "term_years": 20,
+        "death_benefit": 500000,
+        "smoker": false,
+        "health_category": "preferred"
+    },
+    {
+        "id": "LP002",
+        "policy_id": "POL004",
+        "beneficiary_name": "Thomas Johnson",
+        "beneficiary_relation": "spouse",
+        "term_years": 15,
+        "death_benefit": 250000,
+        "smoker": false,
+        "health_category": "standard"
+    },
+    {
+        "id": "LP003",
+        "policy_id": "POL005",
+        "beneficiary_name": "Linda Chen",
+        "beneficiary_relation": "spouse",
+        "term_years": 20,
+        "death_benefit": 1000000,
+        "smoker": false,
+        "health_category": "preferred_plus"
+    },
+    {
+        "id": "LP004",
+        "policy_id": "POL009",
+        "beneficiary_name": "Patricia Wilson",
+        "beneficiary_relation": "spouse",
+        "term_years": 15,
+        "death_benefit": 750000,
+        "smoker": true,
+        "health_category": "standard"
+    },
+    {
+        "id": "LP005",
+        "policy_id": "POL011",
+        "beneficiary_name": "Carlos Martinez",
+        "beneficiary_relation": "spouse",
+        "term_years": 20,
+        "death_benefit": 300000,
+        "smoker": false,
+        "health_category": "preferred"
+    },
+    {
+        "id": "LP006",
+        "policy_id": "POL012",
+        "beneficiary_name": "Susan Thompson",
+        "beneficiary_relation": "spouse",
+        "term_years": 20,
+        "death_benefit": 500000,
+        "smoker": false,
+        "health_category": "standard"
+    },
+    {
+        "id": "LP007",
+        "policy_id": "POL016",
+        "beneficiary_name": "Angela Brown",
+        "beneficiary_relation": "spouse",
+        "term_years": 20,
+        "death_benefit": 400000,
+        "smoker": false,
+        "health_category": "preferred"
+    }
+]

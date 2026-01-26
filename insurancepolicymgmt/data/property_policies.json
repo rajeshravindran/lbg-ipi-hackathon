@@ -1,0 +1,62 @@
+[
+  {
+    "id": "PP001",
+    "policy_id": "POL003",
+    "property_address": "456 High Road, Manchester, M14 6JS",
+    "property_type": "flat",
+    "property_value": 400000,
+    "deductible": 2500,
+    "flood_coverage": false,
+    "fire_coverage": true
+  },
+  {
+    "id": "PP002",
+    "policy_id": "POL006",
+    "property_address": "789 Willow Lane, Birmingham, B13 8QA",
+    "property_type": "semi-detached house",
+    "property_value": 650000,
+    "deductible": 5000,
+    "flood_coverage": true,
+    "fire_coverage": true
+  },
+  {
+    "id": "PP003",
+    "policy_id": "POL010",
+    "property_address": "654 Oak Avenue, Leeds, LS8 4HB",
+    "property_type": "detached house",
+    "property_value": 750000,
+    "deductible": 5000,
+    "flood_coverage": true,
+    "fire_coverage": true
+  },
+  {
+    "id": "PP004",
+    "policy_id": "POL013",
+    "property_address": "147 King Street, Edinburgh, EH2 4JN",
+    "property_type": "detached house",
+    "property_value": 500000,
+    "deductible": 2500,
+    "flood_coverage": false,
+    "fire_coverage": true
+  },
+  {
+    "id": "PP005",
+    "policy_id": "POL017",
+    "property_address": "369 Queen's Drive, Glasgow, G42 8BL",
+    "property_type": "flat",
+    "property_value": 320000,
+    "deductible": 1500,
+    "flood_coverage": false,
+    "fire_coverage": true
+  },
+  {
+    "deductible": 500,
+    "fire_coverage": true,
+    "flood_coverage": true,
+    "property_address": "12 Adner Court, 46 Station Road, London, TW3 2AH",
+    "property_type": "flat",
+    "property_value": 500000,
+    "id": "PP006",
+    "policy_id": "POL019"
+  }
+]
