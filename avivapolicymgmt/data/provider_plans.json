@@ -1,0 +1,231 @@
+[
+    {
+        "provider": "DirectLine",
+        "plans": [
+            {
+                "plan_name": "DirectLine Comprehensive Auto",
+                "policy_type": "auto",
+                "cover_level": "comprehensive",
+                "annual_premium_range": {
+                    "min": 850,
+                    "max": 1400
+                },
+                "voluntary_excess_options": [
+                    150,
+                    250,
+                    500
+                ],
+                "features": {
+                    "accidental_damage": true,
+                    "theft": true,
+                    "fire": true,
+                    "windscreen": true,
+                    "personal_accident": true,
+                    "breakdown_cover": false,
+                    "courtesy_car": true,
+                    "legal_expenses": false,
+                    "protected_ncd": true,
+                    "new_car_replacement": false
+                },
+                "rating": 4.2
+            },
+            {
+                "plan_name": "DirectLine Home Cover",
+                "policy_type": "property",
+                "cover_level": "buildings_and_contents",
+                "annual_premium_range": {
+                    "min": 400,
+                    "max": 900
+                },
+                "voluntary_excess_options": [
+                    100,
+                    250,
+                    500
+                ],
+                "features": {
+                    "buildings": true,
+                    "contents": true,
+                    "accidental_damage_buildings": true,
+                    "accidental_damage_contents": false,
+                    "personal_possessions": false,
+                    "home_emergency": true,
+                    "legal_expenses": false,
+                    "family_legal_cover": false
+                },
+                "rating": 4.0
+            }
+        ]
+    },
+    {
+        "provider": "Admiral",
+        "plans": [
+            {
+                "plan_name": "Admiral Gold Auto",
+                "policy_type": "auto",
+                "cover_level": "comprehensive",
+                "annual_premium_range": {
+                    "min": 780,
+                    "max": 1300
+                },
+                "voluntary_excess_options": [
+                    200,
+                    350,
+                    500
+                ],
+                "features": {
+                    "accidental_damage": true,
+                    "theft": true,
+                    "fire": true,
+                    "windscreen": true,
+                    "personal_accident": true,
+                    "breakdown_cover": true,
+                    "courtesy_car": true,
+                    "legal_expenses": true,
+                    "protected_ncd": true,
+                    "new_car_replacement": true
+                },
+                "rating": 4.5
+            },
+            {
+                "plan_name": "Admiral Home Insurance",
+                "policy_type": "property",
+                "cover_level": "buildings_and_contents",
+                "annual_premium_range": {
+                    "min": 350,
+                    "max": 850
+                },
+                "voluntary_excess_options": [
+                    100,
+                    200,
+                    500
+                ],
+                "features": {
+                    "buildings": true,
+                    "contents": true,
+                    "accidental_damage_buildings": true,
+                    "accidental_damage_contents": true,
+                    "personal_possessions": true,
+                    "home_emergency": true,
+                    "legal_expenses": true,
+                    "family_legal_cover": false
+                },
+                "rating": 4.3
+            }
+        ]
+    },
+    {
+        "provider": "Churchill",
+        "plans": [
+            {
+                "plan_name": "Churchill Comprehensive",
+                "policy_type": "auto",
+                "cover_level": "comprehensive",
+                "annual_premium_range": {
+                    "min": 900,
+                    "max": 1500
+                },
+                "voluntary_excess_options": [
+                    200,
+                    350,
+                    500,
+                    750
+                ],
+                "features": {
+                    "accidental_damage": true,
+                    "theft": true,
+                    "fire": true,
+                    "windscreen": true,
+                    "personal_accident": true,
+                    "breakdown_cover": true,
+                    "courtesy_car": true,
+                    "legal_expenses": true,
+                    "protected_ncd": false,
+                    "new_car_replacement": true
+                },
+                "rating": 4.1
+            },
+            {
+                "plan_name": "Churchill Home Insurance",
+                "policy_type": "property",
+                "cover_level": "buildings_and_contents",
+                "annual_premium_range": {
+                    "min": 420,
+                    "max": 950
+                },
+                "voluntary_excess_options": [
+                    150,
+                    300,
+                    500
+                ],
+                "features": {
+                    "buildings": true,
+                    "contents": true,
+                    "accidental_damage_buildings": true,
+                    "accidental_damage_contents": true,
+                    "personal_possessions": false,
+                    "home_emergency": false,
+                    "legal_expenses": true,
+                    "family_legal_cover": true
+                },
+                "rating": 4.0
+            }
+        ]
+    },
+    {
+        "provider": "LV=",
+        "plans": [
+            {
+                "plan_name": "LV= Comprehensive Auto",
+                "policy_type": "auto",
+                "cover_level": "comprehensive",
+                "annual_premium_range": {
+                    "min": 820,
+                    "max": 1350
+                },
+                "voluntary_excess_options": [
+                    150,
+                    250,
+                    500
+                ],
+                "features": {
+                    "accidental_damage": true,
+                    "theft": true,
+                    "fire": true,
+                    "windscreen": true,
+                    "personal_accident": true,
+                    "breakdown_cover": true,
+                    "courtesy_car": true,
+                    "legal_expenses": true,
+                    "protected_ncd": true,
+                    "new_car_replacement": false
+                },
+                "rating": 4.4
+            },
+            {
+                "plan_name": "LV= Home Insurance",
+                "policy_type": "property",
+                "cover_level": "buildings_and_contents",
+                "annual_premium_range": {
+                    "min": 380,
+                    "max": 880
+                },
+                "voluntary_excess_options": [
+                    100,
+                    250,
+                    500
+                ],
+                "features": {
+                    "buildings": true,
+                    "contents": true,
+                    "accidental_damage_buildings": true,
+                    "accidental_damage_contents": true,
+                    "personal_possessions": true,
+                    "home_emergency": true,
+                    "legal_expenses": false,
+                    "family_legal_cover": false
+                },
+                "rating": 4.3
+            }
+        ]
+    }
+]

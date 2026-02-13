@@ -1,0 +1,30 @@
+[
+    {
+        "claim_id": "CLM-001",
+        "policy_id": "POL-AUTO-003",
+        "customer_id": "CUST-003",
+        "claim_type": "accidental_damage",
+        "date_reported": "2025-10-15",
+        "date_of_incident": "2025-10-14",
+        "description": "Minor collision in car park, rear bumper damaged",
+        "status": "in_progress",
+        "amount_claimed": 1200.00,
+        "amount_settled": null,
+        "repair_status": "at_body_shop",
+        "expected_completion": "2026-02-20"
+    },
+    {
+        "claim_id": "CLM-002",
+        "policy_id": "POL-PROP-002",
+        "customer_id": "CUST-005",
+        "claim_type": "water_damage",
+        "date_reported": "2025-08-20",
+        "date_of_incident": "2025-08-19",
+        "description": "Burst pipe caused water damage to kitchen ceiling",
+        "status": "settled",
+        "amount_claimed": 3500.00,
+        "amount_settled": 3200.00,
+        "repair_status": "completed",
+        "expected_completion": null
+    }
+]

@@ -1,0 +1,208 @@
+[
+  {
+    "customer_id": "CUST-001",
+    "first_name": "Alex",
+    "last_name": "Thompson",
+    "email": "alex.thompson@email.com",
+    "phone": "07412345678",
+    "date_of_birth": "1990-05-15",
+    "address": {
+      "street": "42 Bardsley Close",
+      "city": "Croydon",
+      "postcode": "CR0 1AB",
+      "region": "Greater London"
+    },
+    "driving_licence_number": "THOMP905152A99AB",
+    "licence_years": 12,
+    "ncd_years": 5,
+    "customer_since": "2020-03-10",
+    "life_events": [
+      "commuting_new_job"
+    ],
+    "auth_mobile": "07412345678",
+    "auth_email": "alex.thompson@email.com"
+  },
+  {
+    "customer_id": "CUST-002",
+    "first_name": "Ravneet",
+    "last_name": "Rattan",
+    "email": "ravneet-rattan@gmail.com",
+    "phone": "07424582000",
+    "date_of_birth": "1985-08-22",
+    "address": {
+      "street": "15 Bardsley Close",
+      "city": "Croydon",
+      "postcode": "CR01 111",
+      "region": "Greater London"
+    },
+    "driving_licence_number": "RATTA858221B45CD",
+    "licence_years": 18,
+    "ncd_years": 8,
+    "customer_since": "2018-06-15",
+    "life_events": [
+      "child_turning_18",
+      "moving_house"
+    ],
+    "auth_mobile": "07424582000",
+    "auth_email": "ravneet-rattan@gmail.com"
+  },
+  {
+    "customer_id": "CUST-003",
+    "first_name": "Sarah",
+    "last_name": "Mitchell",
+    "email": "sarah.mitchell@email.com",
+    "phone": "07534567890",
+    "date_of_birth": "1978-11-03",
+    "address": {
+      "street": "8 Oak Avenue",
+      "city": "Manchester",
+      "postcode": "M1 4BT",
+      "region": "Greater Manchester"
+    },
+    "driving_licence_number": "MITCH781103C67EF",
+    "licence_years": 25,
+    "ncd_years": 12,
+    "customer_since": "2015-01-20",
+    "life_events": [
+      "getting_married",
+      "buying_house"
+    ],
+    "auth_mobile": "07534567890",
+    "auth_email": "sarah.mitchell@email.com"
+  },
+  {
+    "customer_id": "CUST-004",
+    "first_name": "James",
+    "last_name": "Wilson",
+    "email": "james.wilson@email.com",
+    "phone": "07645678901",
+    "date_of_birth": "1995-02-28",
+    "address": {
+      "street": "22 Elm Road",
+      "city": "Birmingham",
+      "postcode": "B15 2TT",
+      "region": "West Midlands"
+    },
+    "driving_licence_number": "WILSO950228D89GH",
+    "licence_years": 7,
+    "ncd_years": 3,
+    "customer_since": "2022-09-01",
+    "life_events": [],
+    "auth_mobile": "07645678901",
+    "auth_email": "james.wilson@email.com"
+  },
+  {
+    "customer_id": "CUST-005",
+    "first_name": "Emma",
+    "last_name": "Clarke",
+    "email": "emma.clarke@email.com",
+    "phone": "07756789012",
+    "date_of_birth": "1982-07-19",
+    "address": {
+      "street": "5 Willow Lane",
+      "city": "Leeds",
+      "postcode": "LS1 5AB",
+      "region": "West Yorkshire"
+    },
+    "driving_licence_number": "CLARK820719E12IJ",
+    "licence_years": 20,
+    "ncd_years": 10,
+    "customer_since": "2017-04-12",
+    "life_events": [
+      "child_turning_18",
+      "new_car"
+    ],
+    "auth_mobile": "07756789012",
+    "auth_email": "emma.clarke@email.com"
+  },
+  {
+    "customer_id": "CUST-006",
+    "first_name": "David",
+    "last_name": "Brown",
+    "email": "david.brown@email.com",
+    "phone": "07867890123",
+    "date_of_birth": "1988-12-10",
+    "address": {
+      "street": "31 Cedar Drive",
+      "city": "Bristol",
+      "postcode": "BS1 6QN",
+      "region": "Bristol"
+    },
+    "driving_licence_number": "BROWN881210F34KL",
+    "licence_years": 14,
+    "ncd_years": 6,
+    "customer_since": "2021-02-28",
+    "life_events": [
+      "getting_married"
+    ],
+    "auth_mobile": "07867890123",
+    "auth_email": "david.brown@email.com"
+  },
+  {
+    "customer_id": "CUST-007",
+    "first_name": "Priya",
+    "last_name": "Patel",
+    "email": "priya.patel@email.com",
+    "phone": "07978901234",
+    "date_of_birth": "1992-04-05",
+    "address": {
+      "street": "17 Maple Street",
+      "city": "Leicester",
+      "postcode": "LE1 7RH",
+      "region": "Leicestershire"
+    },
+    "driving_licence_number": "PATEL920405G56MN",
+    "licence_years": 10,
+    "ncd_years": 4,
+    "customer_since": "2023-01-15",
+    "life_events": [
+      "buying_house"
+    ],
+    "auth_mobile": "07978901234",
+    "auth_email": "priya.patel@email.com"
+  },
+  {
+    "customer_id": "CUST-008",
+    "first_name": "Michael",
+    "last_name": "O'Brien",
+    "email": "michael.obrien@email.com",
+    "phone": "07089012345",
+    "date_of_birth": "1975-09-30",
+    "address": {
+      "street": "9 Pine Close",
+      "city": "Edinburgh",
+      "postcode": "EH1 3DG",
+      "region": "Scotland"
+    },
+    "driving_licence_number": "OBRIE750930H78OP",
+    "licence_years": 28,
+    "ncd_years": 15,
+    "customer_since": "2014-11-05",
+    "life_events": [
+      "retirement"
+    ],
+    "auth_mobile": "07089012345",
+    "auth_email": "michael.obrien@email.com"
+  },
+  {
+    "customer_id": "CUST-009",
+    "first_name": "Narasi",
+    "last_name": "Vijay",
+    "email": "vln@gmail.com",
+    "phone": "91923949",
+    "date_of_birth": "1980-03-21",
+    "address": {
+      "street": "Station Road",
+      "city": "Hounslow",
+      "postcode": "TW3 2AH",
+      "region": ""
+    },
+    "driving_licence_number": "5383037309",
+    "licence_years": 5,
+    "ncd_years": 5,
+    "customer_since": "2026-02-13",
+    "life_events": [],
+    "auth_mobile": "91923949",
+    "auth_email": "vln@gmail.com"
+  }
+]

@@ -1,0 +1,87 @@
+[
+    {
+        "property_id": "PROP-001",
+        "customer_id": "CUST-003",
+        "address": {
+            "street": "8 Oak Avenue",
+            "city": "Manchester",
+            "postcode": "M1 4BT",
+            "region": "Greater Manchester"
+        },
+        "property_type": "Semi-Detached",
+        "bedrooms": 3,
+        "year_built": 1995,
+        "rebuild_value": 250000,
+        "security_features": [
+            "burglar_alarm",
+            "window_locks",
+            "deadbolts"
+        ],
+        "flood_risk": "low",
+        "contents_value": 45000
+    },
+    {
+        "property_id": "PROP-002",
+        "customer_id": "CUST-005",
+        "address": {
+            "street": "5 Willow Lane",
+            "city": "Leeds",
+            "postcode": "LS1 5AB",
+            "region": "West Yorkshire"
+        },
+        "property_type": "Detached",
+        "bedrooms": 4,
+        "year_built": 2005,
+        "rebuild_value": 350000,
+        "security_features": [
+            "burglar_alarm",
+            "cctv",
+            "window_locks",
+            "deadbolts"
+        ],
+        "flood_risk": "low",
+        "contents_value": 60000
+    },
+    {
+        "property_id": "PROP-003",
+        "customer_id": "CUST-007",
+        "address": {
+            "street": "17 Maple Street",
+            "city": "Leicester",
+            "postcode": "LE1 7RH",
+            "region": "Leicestershire"
+        },
+        "property_type": "Terraced",
+        "bedrooms": 2,
+        "year_built": 1980,
+        "rebuild_value": 180000,
+        "security_features": [
+            "window_locks",
+            "deadbolts"
+        ],
+        "flood_risk": "medium",
+        "contents_value": 30000
+    },
+    {
+        "property_id": "PROP-004",
+        "customer_id": "CUST-008",
+        "address": {
+            "street": "9 Pine Close",
+            "city": "Edinburgh",
+            "postcode": "EH1 3DG",
+            "region": "Scotland"
+        },
+        "property_type": "Detached",
+        "bedrooms": 5,
+        "year_built": 1970,
+        "rebuild_value": 420000,
+        "security_features": [
+            "burglar_alarm",
+            "cctv",
+            "smart_locks",
+            "window_locks"
+        ],
+        "flood_risk": "low",
+        "contents_value": 80000
+    }
+]

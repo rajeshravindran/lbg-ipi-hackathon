@@ -1,0 +1,261 @@
+[
+  {
+    "coverage_id": "COV-001",
+    "policy_id": "POL-AUTO-001",
+    "coverage_type": "accidental_damage",
+    "included": true,
+    "limit": "Market value"
+  },
+  {
+    "coverage_id": "COV-002",
+    "policy_id": "POL-AUTO-001",
+    "coverage_type": "theft",
+    "included": true,
+    "limit": "Market value"
+  },
+  {
+    "coverage_id": "COV-003",
+    "policy_id": "POL-AUTO-001",
+    "coverage_type": "fire",
+    "included": true,
+    "limit": "Market value"
+  },
+  {
+    "coverage_id": "COV-004",
+    "policy_id": "POL-AUTO-001",
+    "coverage_type": "windscreen",
+    "included": true,
+    "limit": "Unlimited"
+  },
+  {
+    "coverage_id": "COV-005",
+    "policy_id": "POL-AUTO-001",
+    "coverage_type": "personal_accident",
+    "included": true,
+    "limit": "£5,000"
+  },
+  {
+    "coverage_id": "COV-006",
+    "policy_id": "POL-AUTO-001",
+    "coverage_type": "breakdown_cover",
+    "included": true,
+    "limit": "N/A"
+  },
+  {
+    "coverage_id": "COV-007",
+    "policy_id": "POL-AUTO-001",
+    "coverage_type": "courtesy_car",
+    "included": true,
+    "limit": "Up to 14 days"
+  },
+  {
+    "coverage_id": "COV-008",
+    "policy_id": "POL-AUTO-001",
+    "coverage_type": "legal_expenses",
+    "included": false,
+    "limit": "N/A"
+  },
+  {
+    "coverage_id": "COV-009",
+    "policy_id": "POL-AUTO-002",
+    "coverage_type": "accidental_damage",
+    "included": true,
+    "limit": "Market value"
+  },
+  {
+    "coverage_id": "COV-010",
+    "policy_id": "POL-AUTO-002",
+    "coverage_type": "theft",
+    "included": true,
+    "limit": "Market value"
+  },
+  {
+    "coverage_id": "COV-011",
+    "policy_id": "POL-AUTO-002",
+    "coverage_type": "fire",
+    "included": true,
+    "limit": "Market value"
+  },
+  {
+    "coverage_id": "COV-012",
+    "policy_id": "POL-AUTO-002",
+    "coverage_type": "windscreen",
+    "included": true,
+    "limit": "Unlimited"
+  },
+  {
+    "coverage_id": "COV-013",
+    "policy_id": "POL-AUTO-002",
+    "coverage_type": "personal_accident",
+    "included": true,
+    "limit": "£10,000"
+  },
+  {
+    "coverage_id": "COV-014",
+    "policy_id": "POL-AUTO-002",
+    "coverage_type": "breakdown_cover",
+    "included": true,
+    "limit": "UK-wide"
+  },
+  {
+    "coverage_id": "COV-015",
+    "policy_id": "POL-AUTO-002",
+    "coverage_type": "courtesy_car",
+    "included": true,
+    "limit": "Up to 21 days"
+  },
+  {
+    "coverage_id": "COV-016",
+    "policy_id": "POL-AUTO-002",
+    "coverage_type": "legal_expenses",
+    "included": true,
+    "limit": "£100,000"
+  },
+  {
+    "coverage_id": "COV-017",
+    "policy_id": "POL-PROP-001",
+    "coverage_type": "buildings",
+    "included": true,
+    "limit": "£250,000"
+  },
+  {
+    "coverage_id": "COV-018",
+    "policy_id": "POL-PROP-001",
+    "coverage_type": "contents",
+    "included": true,
+    "limit": "£45,000"
+  },
+  {
+    "coverage_id": "COV-019",
+    "policy_id": "POL-PROP-001",
+    "coverage_type": "accidental_damage_buildings",
+    "included": true,
+    "limit": "£250,000"
+  },
+  {
+    "coverage_id": "COV-020",
+    "policy_id": "POL-PROP-001",
+    "coverage_type": "accidental_damage_contents",
+    "included": true,
+    "limit": "£45,000"
+  },
+  {
+    "coverage_id": "COV-021",
+    "policy_id": "POL-PROP-001",
+    "coverage_type": "personal_possessions",
+    "included": false,
+    "limit": "N/A"
+  },
+  {
+    "coverage_id": "COV-022",
+    "policy_id": "POL-PROP-001",
+    "coverage_type": "home_emergency",
+    "included": true,
+    "limit": "£1,000 per claim"
+  },
+  {
+    "coverage_id": "COV-023",
+    "policy_id": "POL-PROP-001",
+    "coverage_type": "legal_expenses",
+    "included": false,
+    "limit": "N/A"
+  },
+  {
+    "coverage_id": "COV-024",
+    "policy_id": "POL-PROP-002",
+    "coverage_type": "buildings",
+    "included": true,
+    "limit": "£350,000"
+  },
+  {
+    "coverage_id": "COV-025",
+    "policy_id": "POL-PROP-002",
+    "coverage_type": "contents",
+    "included": true,
+    "limit": "£60,000"
+  },
+  {
+    "coverage_id": "COV-026",
+    "policy_id": "POL-PROP-002",
+    "coverage_type": "accidental_damage_buildings",
+    "included": true,
+    "limit": "£350,000"
+  },
+  {
+    "coverage_id": "COV-027",
+    "policy_id": "POL-PROP-002",
+    "coverage_type": "accidental_damage_contents",
+    "included": true,
+    "limit": "£60,000"
+  },
+  {
+    "coverage_id": "COV-028",
+    "policy_id": "POL-PROP-002",
+    "coverage_type": "personal_possessions",
+    "included": true,
+    "limit": "£5,000"
+  },
+  {
+    "coverage_id": "COV-029",
+    "policy_id": "POL-PROP-002",
+    "coverage_type": "home_emergency",
+    "included": true,
+    "limit": "£1,500 per claim"
+  },
+  {
+    "coverage_id": "COV-030",
+    "policy_id": "POL-PROP-002",
+    "coverage_type": "legal_expenses",
+    "included": true,
+    "limit": "£100,000"
+  },
+  {
+    "coverage_id": "COV-031",
+    "policy_id": "POL-AUTO-009",
+    "coverage_type": "breakdown_cover",
+    "included": true,
+    "description": "Breakdown Cover"
+  },
+  {
+    "coverage_id": "COV-032",
+    "policy_id": "POL-AUTO-009",
+    "coverage_type": "legal_expenses",
+    "included": true,
+    "description": "Legal Expenses"
+  },
+  {
+    "coverage_id": "COV-033",
+    "policy_id": "POL-AUTO-009",
+    "coverage_type": "personal_possessions",
+    "included": false,
+    "description": "Personal Possessions"
+  },
+  {
+    "coverage_id": "COV-034",
+    "policy_id": "POL-AUTO-009",
+    "coverage_type": "personal_accident",
+    "included": true,
+    "description": "Personal Accident"
+  },
+  {
+    "coverage_id": "COV-035",
+    "policy_id": "POL-AUTO-009",
+    "coverage_type": "courtesy_car",
+    "included": false,
+    "description": "Courtesy Car"
+  },
+  {
+    "coverage_id": "COV-036",
+    "policy_id": "POL-AUTO-009",
+    "coverage_type": "protected_ncd",
+    "included": false,
+    "description": "Protected Ncd"
+  },
+  {
+    "coverage_id": "COV-037",
+    "policy_id": "POL-AUTO-009",
+    "coverage_type": "new_car_replacement",
+    "included": false,
+    "description": "New Car Replacement"
+  }
+]

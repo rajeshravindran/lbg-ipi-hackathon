@@ -1,0 +1,37 @@
+[
+  {
+    "timestamp": "2026-02-13T22:02:22.985797",
+    "action": "policy_purchase",
+    "customer_id": "CUST-009",
+    "policy_id": "POL-AUTO-009",
+    "details": "New auto policy purchased. Premium: £780/year"
+  },
+  {
+    "timestamp": "2026-02-13T22:54:01.698205",
+    "action": "coverage_change",
+    "customer_id": "",
+    "policy_id": "POL-AUTO-001",
+    "details": "Added Breakdown Cover"
+  },
+  {
+    "timestamp": "2026-02-13T23:30:58.843114",
+    "action": "coverage_change",
+    "customer_id": "",
+    "policy_id": "POL-AUTO-009",
+    "details": "Added Legal Expenses"
+  },
+  {
+    "timestamp": "2026-02-13T23:48:39.531545",
+    "action": "premium_update",
+    "customer_id": "CUST-009",
+    "policy_id": "POL-AUTO-009",
+    "details": "Coverage change (Added Breakdown Cover): £780.00 → £825.00/year"
+  },
+  {
+    "timestamp": "2026-02-13T23:48:39.534792",
+    "action": "coverage_change",
+    "customer_id": "",
+    "policy_id": "POL-AUTO-009",
+    "details": "Added Breakdown Cover"
+  }
+]

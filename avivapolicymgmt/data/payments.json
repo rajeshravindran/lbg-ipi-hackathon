@@ -1,0 +1,74 @@
+[
+  {
+    "payment_id": "PAY-001",
+    "policy_id": "POL-AUTO-001",
+    "customer_id": "CUST-001",
+    "amount": 80.0,
+    "date": "2026-01-01",
+    "status": "completed",
+    "method": "direct_debit"
+  },
+  {
+    "payment_id": "PAY-002",
+    "policy_id": "POL-AUTO-001",
+    "customer_id": "CUST-001",
+    "amount": 80.0,
+    "date": "2026-02-01",
+    "status": "completed",
+    "method": "direct_debit"
+  },
+  {
+    "payment_id": "PAY-003",
+    "policy_id": "POL-AUTO-002",
+    "customer_id": "CUST-002",
+    "amount": 1500.0,
+    "date": "2025-03-01",
+    "status": "completed",
+    "method": "card"
+  },
+  {
+    "payment_id": "PAY-004",
+    "policy_id": "POL-AUTO-003",
+    "customer_id": "CUST-003",
+    "amount": 100.0,
+    "date": "2026-01-15",
+    "status": "completed",
+    "method": "direct_debit"
+  },
+  {
+    "payment_id": "PAY-005",
+    "policy_id": "POL-AUTO-003",
+    "customer_id": "CUST-003",
+    "amount": 100.0,
+    "date": "2026-02-15",
+    "status": "pending",
+    "method": "direct_debit"
+  },
+  {
+    "payment_id": "PAY-006",
+    "policy_id": "POL-PROP-001",
+    "customer_id": "CUST-003",
+    "amount": 40.0,
+    "date": "2026-01-15",
+    "status": "completed",
+    "method": "direct_debit"
+  },
+  {
+    "payment_id": "PAY-007",
+    "policy_id": "POL-PROP-002",
+    "customer_id": "CUST-005",
+    "amount": 620.0,
+    "date": "2025-04-01",
+    "status": "completed",
+    "method": "card"
+  },
+  {
+    "payment_id": "PAY-008",
+    "policy_id": "POL-AUTO-009",
+    "customer_id": "CUST-009",
+    "amount": 65,
+    "date": "2026-02-13",
+    "status": "completed",
+    "method": "direct_debit"
+  }
+]

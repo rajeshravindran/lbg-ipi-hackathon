@@ -1,0 +1,78 @@
+[
+    {
+        "offer_id": "RET-001",
+        "offer_type": "discount",
+        "title": "Loyalty Discount",
+        "description": "As a valued customer, we'd like to offer you a 10% discount on your renewal premium.",
+        "discount_percentage": 10,
+        "valid_for_days": 30,
+        "applicable_policy_types": [
+            "auto",
+            "property"
+        ],
+        "min_tenure_months": 12
+    },
+    {
+        "offer_id": "RET-002",
+        "offer_type": "enhanced_cover",
+        "title": "Free Breakdown Cover",
+        "description": "Stay with us and we'll add complimentary UK-wide breakdown cover to your policy for the next 12 months.",
+        "discount_percentage": 0,
+        "valid_for_days": 14,
+        "applicable_policy_types": [
+            "auto"
+        ],
+        "min_tenure_months": 6
+    },
+    {
+        "offer_id": "RET-003",
+        "offer_type": "discount",
+        "title": "Multi-Policy Bundle",
+        "description": "Bundle your car and home insurance together and save 15% on the combined premium.",
+        "discount_percentage": 15,
+        "valid_for_days": 30,
+        "applicable_policy_types": [
+            "auto",
+            "property"
+        ],
+        "min_tenure_months": 0
+    },
+    {
+        "offer_id": "RET-004",
+        "offer_type": "excess_reduction",
+        "title": "Reduced Excess Offer",
+        "description": "We'll reduce your voluntary excess by £100 at no additional cost if you choose to stay.",
+        "discount_percentage": 0,
+        "valid_for_days": 14,
+        "applicable_policy_types": [
+            "auto",
+            "property"
+        ],
+        "min_tenure_months": 12
+    },
+    {
+        "offer_id": "RET-005",
+        "offer_type": "discount",
+        "title": "Price Match Guarantee",
+        "description": "Found a cheaper quote? Share it with us and we'll match the price, plus give you an extra 5% off.",
+        "discount_percentage": 5,
+        "valid_for_days": 7,
+        "applicable_policy_types": [
+            "auto",
+            "property"
+        ],
+        "min_tenure_months": 0
+    },
+    {
+        "offer_id": "RET-006",
+        "offer_type": "enhanced_cover",
+        "title": "Free Home Emergency Cover",
+        "description": "Stay with us and enjoy 12 months of complimentary Home Emergency cover worth £60.",
+        "discount_percentage": 0,
+        "valid_for_days": 14,
+        "applicable_policy_types": [
+            "property"
+        ],
+        "min_tenure_months": 6
+    }
+]

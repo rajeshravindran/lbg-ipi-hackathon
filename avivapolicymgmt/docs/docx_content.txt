@@ -1,0 +1,144 @@
+=== PARAGRAPHS ===
+[0] Project: "SwiftDrive" GenAI Insurance Agent 
+[1] 1. Executive Summary
+[2] To replace traditional multi-step forms with a natural language interface. The GenAI Agent will guide the user through the quote-to-bind journey, using conversational context to extract data and provide instant support.
+[3] 2. Functional Requirements (GenAI Focused)
+[4] | ID | Feature | Requirement Description |
+[5] | FR.1 | Intent Recognition | The AI must distinguish between "I want a quote," "I have a question about my excess," and "I need to change my address." |
+[6] | FR.2 | Conversational Data Capture | Instead of a form, the AI asks: "Great, what's your car's registration?" It then parses the response to trigger the VRN API lookup. |
+[7] | FR.3 | Contextual Cross-Selling | If a user mentions commuting to work, the AI should proactively explain and offer "Business Use" or "Commuting" cover. |
+[8] | FR.4 | Real-time Explainability | The AI must be able to answer "What does 'Voluntary Excess' mean?" mid-flow without the user leaving the chat. |
+[9] | FR.5 | Sentiment Analysis | If the AI detects frustration or confusion, it must offer a seamless "escalation" to a human agent. |
+[10] 3. Updated Technical Architecture
+[11]  * LLM Orchestration: An orchestration layer to manage the dialogue state and ensure the AI stays on track (guardrails).
+[12]  * Structured Data Parsing: The AI must convert conversational text (e.g., "I've been driving for 5 years without a crash") into structured data points for the rating engine (NCD = 5).
+[13]  * Tool Calling and data enrichment: The GenAI must have "tools" to call external APIs (DVLA, CUE, Payment Gateway, Data enrichment from Google etc) directly via function calling within the chat.
+[14] 4. Conversational Journey Logic
+[15] Step 1: The Hook
+[16] > AI: "Hi! I'm your SwiftDrive assistant. To get you a quote in under 2 minutes, what’s your car's registration plate?"
+[17] > 
+[18] Step 2: Interactive Validation
+[19] > AI: "Found it! A 2022 Blue VW Golf. Is that the one? Also, where is it usually parked at night?"
+[20] > 
+[21] Step 3: Soft-Closing
+[22] > AI: "Based on what you told me, I can get you covered for £450 a year. This includes your 5 years of no-claims. Would you like to see what’s included, or are you ready to buy?"
+[23] > 
+[24] 5. Compliance & Guardrails (The "Safety" Layer)
+[25]  * Hallucination Protection: The AI must never promise a price it hasn't verified through the pricing engine.
+[26]  * Scripted Disclosures: Critical legal text (like the "Statement of Fact") must be presented as a non-editable, static block of text within the chat to ensure 100% accuracy.
+[27]  * Audit Trail: Every chat transcript must be saved and timestamped as part of the customer's policy record.
+[28] 
+[29] User Story: The Conversational Quote-to-Bind
+[30] Title: Conversational Vehicle Onboarding via GenAI Agent
+[31] Persona: New Customer (e.g., "Alex")
+[32] The Story
+[33] > As a prospective insurance customer who finds traditional forms tedious and confusing,
+[34] > I want to provide my details through a natural, back-and-forth conversation with an AI agent,
+[35] > So that I can get an accurate motor insurance quote and purchase a policy without feeling like I’m filling out a tax return.
+[36] > 
+[37] Acceptance Criteria (AC)
+[38] These define the "Definition of Done" for the developers.
+[39] 1. Identity & Vehicle Discovery
+[40]  * AC 1.1: The AI must initiate the conversation by asking for the Vehicle Registration Number (VRN).
+[41]  * AC 1.2: Upon receiving a VRN, the AI must call the vehicle lookup API and present the vehicle details (Make, Model, Year) back to the user for confirmation.
+[42]  * AC 1.3: If the user says "No, that's not my car," the AI must allow for manual correction or a re-entry of the VRN.
+[43] 2. Intelligent Data Extraction (NER)
+[44]  * AC 2.1: The AI must use Named Entity Recognition (NER) to extract variables from natural speech.
+[45]    * Example: If Alex says, "I've lived at 12 High St for three years," the AI extracts Address and Time at Address.
+[46]  * AC 2.2: The AI must be able to map "vague" job titles to the internal insurance industry codes (e.g., "I fix laptops" \rightarrow IT Technician).
+[47] 3. Real-Time Support & Education
+[48]  * AC 3.1: If Alex asks "What is a voluntary excess?", the AI must pause the data collection, provide a clear definition, and then resume the flow.
+[49]  * AC 3.2: The AI must explain the price impact of changes in real-time. (e.g., "Increasing your excess to £500 will drop your monthly premium by £4.50.")
+[50] 4. The "Handoff" & Compliance
+[51]  * AC 4.1: Before payment, the AI must generate a "Review Summary" in a clear, bulleted UI card.
+[52]  * AC 4.2: The user must explicitly "Confirm" the Statement of Fact via a checkbox or a clear "I Agree" intent within the chat.
+[53]  * AC 4.3: The AI must transition the user to a secure, PCI-compliant payment iframe or component to handle credit card details.
+[54] Technical Notes for the Team
+[55]  * State Management: The system must save the "Conversation State" every 30 seconds. If Alex closes the browser and returns, the GenAI Agent should say: "Welcome back! I still have your Blue VW Golf saved. Should we pick up where we left off?"
+[56]  * Fallback Logic: If the AI fails to understand a specific input (e.g., a foreign license type) three times, it must trigger a "Human Agent" chat request or provide a phone number.
+[57] 
+[58] New customer flow:
+[59] 
+[60] 
+[61] Existing Customer:
+[62] 
+[63] For an existing policyholder, the GenAI agent shifts from a "Salesman" to a "Personal Concierge." The journey must prioritize recognition, speed, and proactive management.
+[64] Instead of asking for a license plate, the AI starts with: "Welcome back, Alex. I see you're covered for your VW Golf. How can I help with your policy today?"
+[65] 1. The Existing Customer Journey Map
+[66] Entry Point: Authenticated Access
+[67]  * Trigger: User logs in or biometrically authenticates via the app.
+[68]  * AI Context: The agent immediately loads the "Policy Snapshot" (Renewal date, current premium, active add-ons).
+[69] Key Service Pillars
+[70] | Scenario | AI Action | Outcome |
+[71] |---|---|---|
+[72] | Mid-Term Adjustment (MTA) | "I’ve moved house" or "I changed my car." | AI recalculates the premium in the chat and handles the pro-rata payment/refund. |
+[73] | Claims Reporting | "I've had a bump." | AI switches to "Empathy Mode," collects photos/location via chat, and triggers the FNOL (First Notice of Loss) workflow. |
+[74] | Renewal | "Why has my price gone up?" | AI explains the inflationary factors or offers to adjust the mileage/excess to lower the cost. |
+[75] | Document Retrieval | "I need my proof of NCD." | AI generates the PDF and sends it via chat/email instantly. |
+[76] 2. Updated User Story: Mid-Term Adjustment (MTA)
+[77] Title: Conversational Policy Update
+[78] As a policyholder who has just bought a new car,
+[79] I want to tell the AI my new registration number,
+[80] So that I can update my cover and pay any price difference without calling a contact center.
+[81] Acceptance Criteria:
+[82]  * AC 1: AI must validate that the user is the primary policyholder.
+[83]  * AC 2: AI must calculate the "Difference in Premium" (IPT included) based on the remaining days of the policy.
+[84]  * AC 3: AI must inform the user of any administration fees before they commit to the change.
+[85]  * AC 4: Upon payment, the AI must instantly replace the old Certificate of Insurance with the new one in the user's digital wallet.
+[86] 3. The "Renewal" Happy Path
+[87] This is where GenAI prevents "Churn" (customers leaving for competitors).
+[88] User: "My renewal is too expensive. Why is it £50 more this year?"
+[89] GenAI Agent: "I hear you, Alex. I’ve looked into it—the increase is mainly due to a general rise in repair costs for VW parts. However, I see you estimated 10,000 miles last year but only drove 6,000. If we update your annual mileage to 6,000, I can bring that price down by £35. Would you like me to apply that?"
+[90] User: "Yes, please."
+[91] GenAI Agent: "Done! Your new renewal price is £415. Shall I set that to auto-renew on the 1st of next month using your card ending in 1234?"
+[92] 4. Advanced "Proactive" Features
+[93] To make the AI feel truly "Next-Gen," it should anticipate needs:
+[94]  * The "Price Drop" Alert: "Hi Alex! I noticed you've now held your license for another year. This qualifies you for a small discount on your remaining months. I’ve applied a £12 credit to your account!"
+[95]  * The "Weather Warning": "Hey, there's a heavy hailstorm predicted in your area tonight. If you can, park the Golf in the garage to keep it safe!"
+[96]  * The "Claims Assistant": If a claim is open, the AI should provide a progress bar: "Your car is currently at the body shop. They expect to have it ready by Thursday!"
+[97] 5. Security Guardrails for Existing Customers
+[98]  * Step-up Authentication: For high-sensitivity changes (like changing the bank account for payouts), the AI must trigger an SMS OTP (One-Time Password) mid-chat.
+[99]  * Verification of Fact: If a user changes their address to a high-theft area, the AI must explicitly state: "Moving to this area changes your risk profile. Your new monthly cost will be £X."
+[100] 
+[101] Existing customer flow:
+[102] 
+[103] 
+[104] 
+[105] 
+[106] 
+
+=== TABLES ===
+
+--- TABLE 0 ---
+Step | GenAI Agent | Customer
+1 | Hi there! I’m your AvivaInsurance Assistant. I can get you covered in just a few minutes. To start, what’s the registration number of the car we’re insuring? | It’s AB12 CDE.
+2 | (Calls vehicle lookup API) Got it! That’s a 2022 Volkswagen Golf Life TSI. Is that the right car? | Yes, that’s right.
+3 | Great.. Will you be using the car just for social and commuting, or for business use as well and how long have you had your license for? | Just social and commuting. 5 years
+4 | Perfect. How many years of No Claims Discount do you currently have? If you’re unsure, it’s usually on your last renewal. | I have 5 years.
+5 | Nice — that helps keep the price down. Where is the car usually kept overnight (postcode)? | CR0 2XX
+6 | One last question. Have you had any convictions or fixed penalties in last 5 years and have you made any modifications on this car? | No
+7 | Thanks. Based on your location, some customers in this area consider theft and accidental damage protection, especially for newer vehicles. | OK
+8 | (Calculates quote) All set! I can offer you Comprehensive cover for £80 per month, with a £250 voluntary excess. | —
+9 | This includes cover for accidental damage, theft, fire, and windscreen repair. Would you like to see a quick breakdown, adjust anything, or go straight to checkout? | Let’s go to checkout.
+10 | Great choice ..I’ll take you to checkout page now and your cover will start straight away. | —
+
+--- TABLE 1 ---
+Sl No | Agent (GenAI Assistant) | Customer
+1 | Hi! I’m your virtual insurance assistant. How can I help you today? | I’d like to update my existing car insurance policy.
+2 | Sure, I can help with that. Please share your policy number to get started. | FL000000012
+3 | Thanks. For security, please confirm your registered mobile number, email ID, date of birth, and address. | Ravneet7424582000ravneet-rattan@gmail.comDOB: //****Bardsley Close, Croydon
+4 | Thank you, Ravneet. You’re currently on Aviva Comprehensive Car Insurance for your Nissan Qashqai (LM67ABC). Your current premium is £1500, valid until 28 Feb 2026. What changes would you like to make today? | I want to change my address.
+5 | Sure. Your current address is Bardsley Close, Croydon, CR01 111. What is the new address you’d like to update? | XQZ Close, Coulsdon, CR00 001
+6 | Got it. Before I recalculate the premium, would you like to make any other changes today—such as adding a driver, updating coverage, or adding a vehicle? This helps avoid multiple payments. | Yes, I’d like to add a new driver as well.
+7 | No problem. Will the new driver be added as a named driver or main driver? | Named driver
+8 | Please share the new driver’s name, date of birth, and driving licence number. | Neha Singh01/01/1980Neha1234567890
+9 | Thanks. Has the new driver had any driving convictions or fixed penalties in the last 5 years? | No
+10 | Perfect. I now have all the required details. I’ll calculate the combined impact of these changes and share the updated premium. | OK
+11 | Based on the address change and adding a named driver, your updated annual premium will be £2200. Here’s a quick breakdown:• Address change: updated regional risk profile• Additional named driver: shared driving risk.  Your coverage remains fully comprehensive with no change to benefits. Would you like to proceed with this update? | Can you share some more details on the premium breakdown
+12 | Here’s a more detailed view of how the change affects your premium:  Base premium (current policy): £1500 Address change impact: +£100 Reflects regional claims patterns and parking risk Additional named driver impact: +£550 Based on age band, licence profile, and shared vehicle usage Policy-level risk recalibration: + Nil Applies when multiple changes are made together  Updated annual premium: £2200.  Do u need any further details ? | No
+13 | Great. Please complete the one-time payment using this secure link: abc.com | Customer completes payment
+14 | Payment received successfully.   All requested changes have been applied to your policy. | —
+15 | I’ve emailed the updated policy documents reflecting the new address and added driver. Is there anything else I can help you with today? | No
+16 | The policy documents have been emailed. Is there anything else I can help you with today—such as adding a new vehicle or updating coverage? | No
+17 | No problem. Would you like a copy of this chat emailed to you for reference? | No
+18 | Alright.  Thanks for being our valued customer | —

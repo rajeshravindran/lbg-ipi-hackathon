@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Aviva Insurance - Get car and home insurance quotes, manage your policies, and get expert advice from our AI assistant.">
+    <title>Aviva Insurance | Car &amp; Home Insurance Quotes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <!-- ============================================================ -->
+    <!-- NAVIGATION BAR                                                  -->
+    <!-- ============================================================ -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="/" class="aviva-logo-link" aria-label="Aviva Home">
+                    <img class="aviva-logo" src="/static/images/aviva-logo.png" alt="Aviva" />
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="#insurance" class="nav-link">Insurance</a>
+                <a href="#savings" class="nav-link">Savings &amp; Retirement</a>
+                <a href="#claims" class="nav-link">Claims</a>
+                <a href="#help" class="nav-link">Help &amp; Support</a>
+            </div>
+            <div class="nav-actions">
+                <button class="btn-login" id="btnLogin">Log in</button>
+                <button class="btn-quote" id="btnGetQuote">Get a quote</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============================================================ -->
+    <!-- HERO SECTION                                                     -->
+    <!-- ============================================================ -->
+    <section class="hero" id="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">Insurance that's <span class="text-yellow">always there</span> for you</h1>
+                <p class="hero-subtitle">
+                    Protect what matters most with award-winning car and home insurance.
+                    Get a personalised quote in minutes with our AI-powered assistant.
+                </p>
+                <div class="hero-cta">
+                    <button class="btn-primary" id="heroQuoteBtn" onclick="openChat()">
+                        &#x1F4AC; Chat with our AI Assistant
+                    </button>
+                    <button class="btn-secondary" onclick="openChat()">
+                        Get a quick quote
+                    </button>
+                </div>
+                <div class="hero-trust">
+                    <div class="trust-item">
+                        <span class="trust-icon">&#x2B50;</span>
+                        <span>4.6/5 Trustpilot</span>
+                    </div>
+                    <div class="trust-item">
+                        <span class="trust-icon">&#x1F3C6;</span>
+                        <span>Award-winning service</span>
+                    </div>
+                    <div class="trust-item">
+                        <span class="trust-icon">&#x1F6E1;&#xFE0F;</span>
+                        <span>15M+ customers</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-card card-auto">
+                    <div class="card-icon">&#x1F697;</div>
+                    <h3>Car Insurance</h3>
+                    <p>Comprehensive cover from &pound;29/month</p>
+                    <button class="card-btn" onclick="openChatWithMessage('I want a car insurance quote')">Get quote
+                        &#x2192;</button>
+                </div>
+                <div class="hero-card card-home">
+                    <div class="card-icon">&#x1F3E0;</div>
+                    <h3>Home Insurance</h3>
+                    <p>Buildings &amp; contents from &pound;22/month</p>
+                    <button class="card-btn" onclick="openChatWithMessage('I want a home insurance quote')">Get quote
+                        &#x2192;</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FEATURES SECTION                                                 -->
+    <!-- ============================================================ -->
+    <section class="features" id="insurance">
+        <div class="features-container">
+            <h2 class="section-title">Why choose <span class="text-blue">Aviva</span>?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">&#x1F916;</div>
+                    <h3>AI-Powered Service</h3>
+                    <p>Get instant quotes, manage your policy, and get expert advice 24/7 with our intelligent AI
+                        assistant.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#x26A1;</div>
+                    <h3>Instant Quotes</h3>
+                    <p>No lengthy forms. Just have a conversation and get your personalised quote in under 2 minutes.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#x1F4B0;</div>
+                    <h3>Competitive Prices</h3>
+                    <p>We compare our rates against the market so you can trust you're getting real value for money.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#x1F4F1;</div>
+                    <h3>Manage Anytime</h3>
+                    <p>Update your policy, add drivers, change address &mdash; all through a simple chat conversation.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#x1F512;</div>
+                    <h3>Secure &amp; Trusted</h3>
+                    <p>Your data is protected with bank-grade security. Over 325 years of trusted insurance experience.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#x2764;&#xFE0F;</div>
+                    <h3>Claims That Care</h3>
+                    <p>Empathetic claims handling with real-time updates. We're with you when you need us most.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- MANAGE POLICY SECTION                                            -->
+    <!-- ============================================================ -->
+    <section class="manage-section" id="help">
+        <div class="manage-container">
+            <div class="manage-content">
+                <h2>Already a customer?</h2>
+                <p>Manage your existing policies with ease. Our AI assistant can help you with:</p>
+                <ul class="manage-list">
+                    <li>&#x1F4CB; View and download policy documents</li>
+                    <li>&#x1F3E0; Update your address or personal details</li>
+                    <li>&#x1F465; Add or remove named drivers</li>
+                    <li>&#x1F504; Renew your policy with potential savings</li>
+                    <li>&#x1F4CA; Compare your cover with other providers</li>
+                    <li>&#x1F4A1; Get personalised coverage recommendations</li>
+                </ul>
+                <button class="btn-primary" onclick="openChatWithMessage('I want to manage my existing policy')">
+                    Manage my policy &#x2192;
+                </button>
+            </div>
+            <div class="manage-visual">
+                <div class="policy-preview">
+                    <div class="preview-header">
+                        <span class="preview-badge">Active</span>
+                        <span class="preview-type">Comprehensive</span>
+                    </div>
+                    <div class="preview-body">
+                        <div class="preview-car">&#x1F697; 2022 VW Golf</div>
+                        <div class="preview-premium">&pound;80 <span>/month</span></div>
+                        <div class="preview-details">
+                            <span>Renewal: 28 Feb 2026</span>
+                            <span>Excess: &pound;250</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FOOTER                                                           -->
+    <!-- ============================================================ -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>Insurance</h4>
+                    <a href="#">Car insurance</a>
+                    <a href="#">Home insurance</a>
+                    <a href="#">Van insurance</a>
+                    <a href="#">Travel insurance</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Customer service</h4>
+                    <a href="#">Contact us</a>
+                    <a href="#">Make a claim</a>
+                    <a href="#">FAQs</a>
+                    <a href="#">Complaints</a>
+                </div>
+                <div class="footer-col">
+                    <h4>About Aviva</h4>
+                    <a href="#">About us</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Press office</a>
+                    <a href="#">Sustainability</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <a href="#">Privacy policy</a>
+                    <a href="#">Cookie policy</a>
+                    <a href="#">Terms of use</a>
+                    <a href="#">Accessibility</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Aviva Insurance. All rights reserved. Aviva Insurance Limited. Registered in England No.
+                    2116.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============================================================ -->
+    <!-- CHAT WIDGET                                                      -->
+    <!-- ============================================================ -->
+    <!-- Chat toggle button (floating) -->
+    <button class="chat-toggle" id="chatToggle" onclick="toggleChat()" aria-label="Open chat assistant">
+        <span class="chat-toggle-icon" id="chatToggleIcon">&#x1F4AC;</span>
+        <span class="chat-toggle-pulse"></span>
+    </button>
+
+    <!-- Chat panel -->
+    <div class="chat-panel" id="chatPanel">
+        <!-- Chat header -->
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <div class="chat-avatar">
+                    <span>A</span>
+                    <span class="avatar-status"></span>
+                </div>
+                <div class="chat-header-text">
+                    <h4>Aviva AI Assistant</h4>
+                    <span class="chat-status">Online &mdash; ready to help</span>
+                </div>
+            </div>
+            <div class="chat-header-actions">
+                <button class="chat-action-btn" onclick="resetChat()" title="New conversation">&#x1F504;</button>
+                <button class="chat-action-btn" onclick="toggleChat()" title="Close chat">&#x2715;</button>
+            </div>
+        </div>
+
+        <!-- Chat messages area -->
+        <div class="chat-messages" id="chatMessages">
+            <!-- Welcome message -->
+            <div class="message bot-message" id="welcomeMessage">
+                <div class="message-avatar">A</div>
+                <div class="message-content">
+                    <p>Hello! &#x1F44B; Welcome to <strong>Aviva Insurance</strong>.</p>
+                    <p>I'm your virtual insurance assistant, here to help you with all your insurance needs.</p>
+                    <p>How can I help you today?</p>
+                    <div class="quick-actions">
+                        <button class="quick-action-btn"
+                            onclick="sendQuickMessage('I want a new car insurance quote')">&#x1F697; Car quote</button>
+                        <button class="quick-action-btn"
+                            onclick="sendQuickMessage('I want a new home insurance quote')">&#x1F3E0; Home
+                            quote</button>
+                        <button class="quick-action-btn"
+                            onclick="sendQuickMessage('I want to manage my existing policy')">&#x1F4CB; My
+                            policy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Typing indicator -->
+        <div class="typing-indicator" id="typingIndicator" style="display: none;">
+            <div class="message-avatar">A</div>
+            <div class="typing-dots">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+
+        <!-- Chat input -->
+        <div class="chat-input-area">
+            <div class="chat-input-container">
+                <textarea id="chatInput" class="chat-input" placeholder="Type your message..." rows="1" maxlength="2000"
+                    onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
+                    <span>&#x27A4;</span>
+                </button>
+            </div>
+            <div class="chat-footer-text">
+                Powered by Aviva AI &#x2022; Your data is secure &#x1F512;
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/chat.js"></script>
+
+</body>
+
+</html>

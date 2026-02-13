@@ -1,0 +1,98 @@
+[
+  {
+    "document_id": "DOC-001",
+    "policy_id": "POL-AUTO-001",
+    "customer_id": "CUST-001",
+    "doc_type": "certificate_of_insurance",
+    "filename": "COI_POL-AUTO-001.pdf",
+    "generated_date": "2025-03-01"
+  },
+  {
+    "document_id": "DOC-002",
+    "policy_id": "POL-AUTO-001",
+    "customer_id": "CUST-001",
+    "doc_type": "policy_schedule",
+    "filename": "Schedule_POL-AUTO-001.pdf",
+    "generated_date": "2025-03-01"
+  },
+  {
+    "document_id": "DOC-003",
+    "policy_id": "POL-AUTO-001",
+    "customer_id": "CUST-001",
+    "doc_type": "ncd_proof",
+    "filename": "NCD_CUST-001.pdf",
+    "generated_date": "2025-03-01"
+  },
+  {
+    "document_id": "DOC-004",
+    "policy_id": "POL-AUTO-002",
+    "customer_id": "CUST-002",
+    "doc_type": "certificate_of_insurance",
+    "filename": "COI_POL-AUTO-002.pdf",
+    "generated_date": "2025-03-01"
+  },
+  {
+    "document_id": "DOC-005",
+    "policy_id": "POL-AUTO-002",
+    "customer_id": "CUST-002",
+    "doc_type": "policy_schedule",
+    "filename": "Schedule_POL-AUTO-002.pdf",
+    "generated_date": "2025-03-01"
+  },
+  {
+    "document_id": "DOC-006",
+    "policy_id": "POL-AUTO-002",
+    "customer_id": "CUST-002",
+    "doc_type": "ncd_proof",
+    "filename": "NCD_CUST-002.pdf",
+    "generated_date": "2025-03-01"
+  },
+  {
+    "document_id": "DOC-007",
+    "policy_id": "POL-PROP-001",
+    "customer_id": "CUST-003",
+    "doc_type": "certificate_of_insurance",
+    "filename": "COI_POL-PROP-001.pdf",
+    "generated_date": "2025-06-15"
+  },
+  {
+    "document_id": "DOC-008",
+    "policy_id": "POL-PROP-001",
+    "customer_id": "CUST-003",
+    "doc_type": "policy_schedule",
+    "filename": "Schedule_POL-PROP-001.pdf",
+    "generated_date": "2025-06-15"
+  },
+  {
+    "document_id": "DOC-009",
+    "policy_id": "POL-PROP-002",
+    "customer_id": "CUST-005",
+    "doc_type": "certificate_of_insurance",
+    "filename": "COI_POL-PROP-002.pdf",
+    "generated_date": "2025-04-01"
+  },
+  {
+    "document_id": "DOC-010",
+    "policy_id": "POL-PROP-002",
+    "customer_id": "CUST-005",
+    "doc_type": "policy_schedule",
+    "filename": "Schedule_POL-PROP-002.pdf",
+    "generated_date": "2025-04-01"
+  },
+  {
+    "document_id": "DOC-011",
+    "policy_id": "POL-AUTO-009",
+    "customer_id": "CUST-009",
+    "doc_type": "certificate_of_insurance",
+    "filename": "CERTIFICATE_OF_INSURANCE_POL-AUTO-009.pdf",
+    "generated_date": "2026-02-13"
+  },
+  {
+    "document_id": "DOC-012",
+    "policy_id": "POL-AUTO-009",
+    "customer_id": "CUST-009",
+    "doc_type": "policy_schedule",
+    "filename": "POLICY_SCHEDULE_POL-AUTO-009.pdf",
+    "generated_date": "2026-02-13"
+  }
+]
